@@ -1,2 +1,3 @@
-##Vasily
-##x86 os i guess
+#Vasily
+
+x86 os i guess
