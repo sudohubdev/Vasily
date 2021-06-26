@@ -18,8 +18,10 @@ switch_to_our_seg:
     movl $tmp_stack,%esp
     movl %esp,%ebp
     call krnl_main
-    cli //just in case
+    a:
+    sti
     hlt
+    jmp a
     
 gdt_info:
     .word end_gdt-gdt-1
