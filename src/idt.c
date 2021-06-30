@@ -21,6 +21,6 @@ void init_idt(){
     }
     set_idt_entry(0x20,pit_isr,0x8,0x8e);
     set_idt_entry(0x21,key_isr,0x8,0x8e);
-    asm("lidt idtinf;");
+    asm("lidt idtinf;cli");
     putstring(donemsg);
 }

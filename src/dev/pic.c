@@ -2,8 +2,9 @@
 #include "dev/pic.h"
 #include"vgatext.h"
 #include "io.h"
+char p[]="init_pic()...";
 void init_pic(){
-    putstring("init_pic()...");
+    putstring(p);
     unsigned char a1,a2;
     a1=inb(0x21);
     a2=inb(0xa1);

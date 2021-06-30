@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "random": "cpp",
-        "vgatext.h": "c"
+        "vgatext.h": "c",
+        "init.h": "c"
     }
 }
