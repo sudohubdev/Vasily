@@ -105,7 +105,6 @@ pit_isr:
     
     movl kernel_task,%ebx
     movl %ebx, current_task
-    jmp .s3
     
     .s3:
     
@@ -135,19 +134,22 @@ pit_isr:
     popw %gs
     
     
-    
     iretl
     .s:
     popf
 
     iretl
 key_isr:
+    pushw %ax
     movb $0x20,%al
     outb %al,$0x20
+    popw %ax
     iretl
 int_stub:
     iretl
 irq_stub:
+    pushw %ax
     movb $0x20,%al
     outb %al,$0x20
+    popw %ax
     iretl
