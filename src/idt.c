@@ -4,7 +4,7 @@
 struct idt_info idtinf;
 struct idt krnl_idt[129]={{0,0,0,0,0}};
 void set_idt_entry(unsigned int num,void* func,unsigned short sel,unsigned char type){
-    krnl_idt[num].offset_l=func;
+    krnl_idt[num].offset_l=(unsigned int)func;
     krnl_idt[num].selector=sel;
     krnl_idt[num].type_attr=type;
     krnl_idt[num].offset_h=((unsigned int)func>>16);

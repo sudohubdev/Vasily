@@ -24,5 +24,6 @@ SECTIONS{
         *(COMMON)
         *(.bss)
     }
-     __krnl_end = .;
+    . = . + 16K;
+     __krnl_end = ALIGN(16k);
 }

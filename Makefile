@@ -4,7 +4,7 @@ LD=i686-elf-gcc
 
 x86_asm=$(wildcard asm/x86-32/*.S)
 x86_o=$(x86_asm:.S=.o) 
-c_src= $(wildcard src/dev/*.c) $(wildcard src/*.c)
+c_src= $(wildcard src/*.c) $(wildcard src/dev/*.c)
 c_obj=$(c_src:.c=.o)
 LDFLAGS=-ffreestanding -nostdlib -lgcc 
 CFLAGS= -Wall -Wextra -ffreestanding -O2 -Wall -Wextra -I/usr/include/multiboot -I./include -std=gnu99

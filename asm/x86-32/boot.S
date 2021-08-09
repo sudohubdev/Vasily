@@ -19,14 +19,17 @@ multiboot_info: .long 0
 switch_to_our_seg:
     movl %ebx,multiboot_info
     movw $0x10,%bx
-    movl %bx,%ds
-    movl %bx,%es
-    movl %bx,%fs 
-    movl %bx,%gs
-    movl %bx,%ss 
+    movw %bx,%ds
+    movw %bx,%es
+    movw %bx,%fs 
+    movw %bx,%gs
+    movw %bx,%ss 
     movl $tmp_stack,%esp
     movl %esp,%ebp
     pushl multiboot_info
+
+    finit //initialize 80387 so we can do float
+
     call krnl_main
     a:
     sti
@@ -45,4 +48,4 @@ end_gdt:
 .section bss
     .skip 8192
 tmp_stack: //x86 stack grows downwards
-
+    .skip 8192
