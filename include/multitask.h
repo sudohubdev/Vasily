@@ -1,6 +1,6 @@
 #pragma once
 #include "mem.h"
-
+#include "fs/vfs.h"
 struct task{
     void* next,*prev;//0,4
     unsigned int* eip,*esp,*kernel_esp,*cr3,*eflags;//8,12,16,20,24
@@ -8,6 +8,7 @@ struct task{
     char* task_name;
     unsigned long long task_id;
     void *task_stack,*kernel_stack;
+    struct vfs_node* fds[1024];
     
 }__attribute__((packed));
 

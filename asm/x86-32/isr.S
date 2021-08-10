@@ -100,6 +100,8 @@ pit_isr:
     movl 16(%ebx),%eax
     movl %eax,sys_tss_table+4
     movl $0x10,sys_tss_table+8
+    movl 20(%ebx),%eax
+    movl %eax,sys_tss_table+28
        
     
     popal

@@ -34,13 +34,12 @@ void init_multitask(){
     current_task->task_name=(char*)&kernel_task_name;
     current_task->ring=0;
     current_task->next=0;
-
-    
+    void* reg_cr3;
+    asm("movl %%cr3,%%eax; movl %%eax, %0":"=g"(reg_cr3)::"eax");
+    current_task->cr3=reg_cr3;    
     enable_multitask=1;
     asm("sti;nop;nop;sti");
-    while(1)
-        putunum(kernel_task->eflags,2);
-    
+    putstring("kernel task spawned...");
     putstring(donemsg);
 
 }

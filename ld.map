@@ -9,20 +9,20 @@ Linker script and memory map
                 0x0000000000000000                . = 0x0
                 0x0000000000000000                __krnl_start = .
 
-.text           0x0000000000000000     0x1381
+.text           0x0000000000000000     0x13a1
  *(.multiboot)
  .multiboot     0x0000000000000000       0x30 asm/x86-32/header.o
  *(.text)
  .text          0x0000000000000030       0x5c asm/x86-32/boot.o
                 0x0000000000000030                _start
  .text          0x000000000000008c        0x0 asm/x86-32/header.o
- .text          0x000000000000008c       0xe9 asm/x86-32/isr.o
+ .text          0x000000000000008c       0xf1 asm/x86-32/isr.o
                 0x0000000000000094                pit_isr
-                0x0000000000000162                key_isr
-                0x000000000000016b                int_stub
-                0x000000000000016c                irq_stub
- .text          0x0000000000000175        0x0 src/common.o
- *fill*         0x0000000000000175        0xb 
+                0x000000000000016a                key_isr
+                0x0000000000000173                int_stub
+                0x0000000000000174                irq_stub
+ .text          0x000000000000017d        0x0 src/common.o
+ *fill*         0x000000000000017d        0x3 
  .text          0x0000000000000180      0x839 src/heap.o
                 0x00000000000001b0                k_heapBMInit
                 0x00000000000001c0                k_heapBMAddBlock
@@ -62,9 +62,9 @@ Linker script and memory map
                 0x0000000000000cf0                krnl_map_page
                 0x0000000000000d30                init_paging
  *fill*         0x0000000000000ddf        0x1 
- .text          0x0000000000000de0       0x97 src/multitask.o
+ .text          0x0000000000000de0       0x9a src/multitask.o
                 0x0000000000000de0                init_multitask
- *fill*         0x0000000000000e77        0x9 
+ *fill*         0x0000000000000e7a        0x6 
  .text          0x0000000000000e80       0x65 src/panic.o
                 0x0000000000000e80                __internal_panic
  *fill*         0x0000000000000ee5        0xb 
@@ -81,11 +81,11 @@ Linker script and memory map
  .text          0x0000000000001280       0xf7 src/dev/pic.o
                 0x0000000000001280                init_pic
  *fill*         0x0000000000001377        0x9 
- .text          0x0000000000001380        0x1 src/fs/vfs.o
+ .text          0x0000000000001380       0x21 src/fs/vfs.o
                 0x0000000000001380                init_vfs
 
-.iplt           0x0000000000001381        0x0
- .iplt          0x0000000000001381        0x0 asm/x86-32/boot.o
+.iplt           0x00000000000013a1        0x0
+ .iplt          0x00000000000013a1        0x0 asm/x86-32/boot.o
 
 .data           0x0000000000002000       0xda
  *(.data)
@@ -127,7 +127,7 @@ Linker script and memory map
  .rodata        0x0000000000003000        0x4 src/panic.o
  .rodata        0x0000000000003004       0x12 src/vgatext.o
 
-.rodata.str1.1  0x0000000000003016       0xa8
+.rodata.str1.1  0x0000000000003016       0xcb
  .rodata.str1.1
                 0x0000000000003016        0x4 src/common.o
  .rodata.str1.1
@@ -138,16 +138,18 @@ Linker script and memory map
  .rodata.str1.1
                 0x0000000000003078       0x1d src/mem.o
  .rodata.str1.1
-                0x0000000000003095       0x14 src/multitask.o
+                0x0000000000003095       0x2b src/multitask.o
  .rodata.str1.1
-                0x00000000000030a9       0x15 src/panic.o
+                0x00000000000030c0       0x15 src/panic.o
+ .rodata.str1.1
+                0x00000000000030d5        0xc src/fs/vfs.o
 
-.rel.dyn        0x00000000000030c0        0x0
- .rel.got       0x00000000000030c0        0x0 asm/x86-32/boot.o
- .rel.iplt      0x00000000000030c0        0x0 asm/x86-32/boot.o
- .rel.text      0x00000000000030c0        0x0 asm/x86-32/boot.o
+.rel.dyn        0x00000000000030e4        0x0
+ .rel.got       0x00000000000030e4        0x0 asm/x86-32/boot.o
+ .rel.iplt      0x00000000000030e4        0x0 asm/x86-32/boot.o
+ .rel.text      0x00000000000030e4        0x0 asm/x86-32/boot.o
 
-.bss            0x0000000000004000      0x4de
+.bss            0x0000000000004000      0x4e8
  *(COMMON)
  *(.bss)
  .bss           0x0000000000004000        0x0 asm/x86-32/boot.o
@@ -179,8 +181,11 @@ Linker script and memory map
  .bss           0x00000000000044dc        0x2 src/vgatext.o
                 0x00000000000044dc                cursorpos
  .bss           0x00000000000044de        0x0 src/dev/pic.o
- .bss           0x00000000000044de        0x0 src/fs/vfs.o
-                0x00000000000084de                . = (. + 0x4000)
+ *fill*         0x00000000000044de        0x2 
+ .bss           0x00000000000044e0        0x8 src/fs/vfs.o
+                0x00000000000044e0                devfs
+                0x00000000000044e4                root
+                0x00000000000084e8                . = (. + 0x4000)
                 0x000000000000c000                __krnl_end = ALIGN (0x4000)
 LOAD asm/x86-32/boot.o
 LOAD asm/x86-32/header.o
