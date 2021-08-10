@@ -1,3 +1,5 @@
+#pragma once
+
 void init_paging();
 typedef union{
     struct{

@@ -2,6 +2,7 @@
 .section .text
 .code32
 .extern krnl_main
+.extern sys_tss_table
 .globl _start
 _start:
     nop
@@ -24,6 +25,8 @@ switch_to_our_seg:
     movw %bx,%fs 
     movw %bx,%gs
     movw %bx,%ss 
+    movl $sys_tss_table,%ebx
+    movw %bx,systss_special
     movl $tmp_stack,%esp
     movl %esp,%ebp
     pushl multiboot_info
@@ -44,6 +47,10 @@ gdt:
 zero: .long 0,0
 flatcode: .byte 0xff,0xff,0,0,0,0b10011010,0b11001111,0
 flatdata: .byte 0xff,0xff,0,0,0,0b10010010,0b11001111,0
+usercode: .byte 0xff,0xff,0,0,0,0b11111010,0b11001111,0
+userdata: .byte 0xff,0xff,0,0,0,0b11110010,0b11001111,0
+systss:   .byte 0x68,0x00
+systss_special: .byte 0,0,0,0b10001001,0b11000000,0
 end_gdt:
 .section bss
     .skip 8192
