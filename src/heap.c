@@ -8,6 +8,7 @@
 #define uint8 unsigned char
 /* Leonard Kevin McGuire Jr (kmcg3413@gmail.com) (www.kmcg3413.net) */
 
+
 void k_heapBMInit(KHEAPBM *heap) {
 	heap->fblock = 0;
 }

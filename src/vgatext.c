@@ -1,21 +1,36 @@
 #include "vgatext.h"
 #include "io.h"
+#include "klibc/string.h"
+
+unsigned short buf[80*25]={0};
+
+unsigned short* buf_ptr=&buf[0];
+
+
 unsigned short default_colour=0x7;
 void buff_putchar(int x,int y,short c,unsigned short colour){
-    *(unsigned short*)(0xb8000+y*80*2+x*2)=(colour<<8 | c);
+    *(unsigned short*)(buf_ptr+y*80+x)=(colour<<8 | c);
 }
 unsigned char cursorpos[2]={0,0};
 void set_term_colour(unsigned short c){
     default_colour=c;
 };
+void buf_flush(){
+    unsigned short *fb=0xb8000;
+    for(unsigned long i=0;i<(cursorpos[1]*80+cursorpos[0]);++i){
+        fb[i]=buf[i];
+    }
+}
+
 void text_scroll(){
     for(int x=0;x<80;++x){
         for(int y=0;y<25;++y){
-            *(unsigned short*)(0xb8000+y*80*2+x*2)=*(unsigned short*)(0xb8000+80*2+y*80*2+x*2);
+            *(unsigned short*)(buf_ptr+y*80*2+x*2)=*(unsigned short*)(buf_ptr+80*2+y*80*2+x*2);
         }
     }
     --cursorpos[1];
-    move_cursor(cursorpos[0],cursorpos[1]);
+        move_cursor(cursorpos[0],cursorpos[1]);
+    buf_flush();
 }
 
 
@@ -41,9 +56,11 @@ void putstring(const char* s){
                 }
             }
         }
-        move_cursor(cursorpos[0],cursorpos[1]);
 
     }while((*++s)!=0);
+        move_cursor(cursorpos[0],cursorpos[1]);
+        buf_flush();
+
 }
 int strlen(char* s){
     int i;
