@@ -1,31 +1,44 @@
 #include "vgatext.h"
 #include "io.h"
+#include <multiboot.h>
 #include "klibc/string.h"
+#include "heap.h"
 
-unsigned short buf[80*25]={0};
+unsigned int tres[2]={80,25};
 
-unsigned short* buf_ptr=&buf[0];
+unsigned int gres[2]={720,400};
+
+
+char istext=1;
+
+
+unsigned short* buf_ptr;
+
+extern multiboot_info_t globl_info;
 
 
 unsigned short default_colour=0x7;
 void buff_putchar(int x,int y,short c,unsigned short colour){
-    *(unsigned short*)(buf_ptr+y*80+x)=(colour<<8 | c);
+    *(unsigned short*)(buf_ptr+y*tres[0]+x)=(colour<<8 | c);
 }
 unsigned char cursorpos[2]={0,0};
 void set_term_colour(unsigned short c){
     default_colour=c;
 };
 void buf_flush(){
-    unsigned short *fb=0xb8000;
-    for(unsigned long i=0;i<(cursorpos[1]*80+cursorpos[0]);++i){
-        fb[i]=buf[i];
+    unsigned short *fb;
+    fb=(short unsigned int*)(unsigned int)globl_info.framebuffer_addr;
+    if(globl_info.framebuffer_type==2){
+        for(unsigned long i=0;i<(cursorpos[1]*tres[0]+cursorpos[0]);++i){
+            fb[i]=buf_ptr[i];
+        }
     }
 }
 
 void text_scroll(){
-    for(int x=0;x<80;++x){
-        for(int y=0;y<25;++y){
-            *(unsigned short*)(buf_ptr+y*80*2+x*2)=*(unsigned short*)(buf_ptr+80*2+y*80*2+x*2);
+    for(unsigned int x=0;x<tres[0];++x){
+        for(unsigned int y=0;y<25;++y){
+            *(unsigned short*)(buf_ptr+y*tres[0]*2+x*2)=*(unsigned short*)(buf_ptr+tres[0]*2+y*tres[0]*2+x*2);
         }
     }
     --cursorpos[1];
@@ -48,7 +61,7 @@ void putstring(const char* s){
         else{
             buff_putchar(cursorpos[0],cursorpos[1],*s,default_colour);
             ++cursorpos[0];
-            if(cursorpos[0]==80){
+            if(cursorpos[0]==tres[0]){
                 ++cursorpos[1];
                 cursorpos[0]=0;
                 if(cursorpos[1]>=25){
@@ -88,9 +101,17 @@ int strlen(char* s){
     
 }
 void move_cursor(int x,int y){
-    unsigned short pos=y*80+x;
-    outb(0x3d4,0xf);
-    outb(0x3d5,(unsigned char)(pos&0xff));
-    outb(0x3d4,0xe);
-    outb(0x3d5,(unsigned char)((pos>>8)&0xff));
+    if(globl_info.framebuffer_type==2){
+        unsigned short pos=y*tres[0]+x;
+        outb(0x3d4,0xf);
+        outb(0x3d5,(unsigned char)(pos&0xff));
+        outb(0x3d4,0xe);
+        outb(0x3d5,(unsigned char)((pos>>8)&0xff));
+    }
+            
+}
+
+void init_vga(){
+    if(globl_info.framebuffer_type==2)
+        buf_ptr=khmalloc(tres[0]*2+tres[1]*tres[0]*2+tres[0]*2);
 }

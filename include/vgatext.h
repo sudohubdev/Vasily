@@ -14,3 +14,5 @@ struct vbe_info_structure {
    unsigned short VideoModePtr[2];         // isa vbeFarPtr
    unsigned short TotalMemory;             // as # of 64KB blocks
 } __attribute__((packed));
+
+void init_vga();

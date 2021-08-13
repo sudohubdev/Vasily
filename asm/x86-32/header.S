@@ -12,7 +12,7 @@ multiboot_header:
 .long 0
 .long 0
 .long 0
-.long 1
+istextmode: .long 1
 .long 0
 .long 0
 .long 0
