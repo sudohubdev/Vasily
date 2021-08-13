@@ -40,7 +40,7 @@ struct task{
  *      ss
  */
 
- 
+ .code32
 pit_isr:
     pushw %ax
     movb $0x20,%al

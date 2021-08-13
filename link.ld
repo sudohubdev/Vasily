@@ -1,7 +1,7 @@
 ENTRY(_start)
 
 SECTIONS{
-    . = 0x00;
+    . = 0x10000;
     __krnl_start = .;
     .text BLOCK(4k) : ALIGN(4k)
     {

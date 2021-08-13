@@ -19,6 +19,7 @@ multiboot_info: .long 0
 
 switch_to_our_seg:
     movl %ebx,multiboot_info
+    
     movw $0x10,%bx
     movw %bx,%ds
     movw %bx,%es
@@ -29,7 +30,11 @@ switch_to_our_seg:
     movw %bx,systss_special
     movl $tmp_stack,%esp
     movl %esp,%ebp
-    pushl multiboot_info
+    
+        pushl multiboot_info
+
+
+    
 
     finit //initialize 80387 so we can do float
 
@@ -39,7 +44,7 @@ switch_to_our_seg:
     hlt
     jmp a
 .section .data
-
+.globl gdt_info
 gdt_info:
     .word end_gdt-gdt-1
     .long gdt
@@ -51,8 +56,22 @@ usercode: .byte 0xff,0xff,0,0,0,0b11111010,0b11001111,0
 userdata: .byte 0xff,0xff,0,0,0,0b11110010,0b11001111,0
 systss:   .byte 0x68,0x00
 systss_special: .byte 0,0,0,0b10001001,0b11000000,0
+realcode:    .byte 0xff, 0xff, 0, 0, 0, 0b10011010, 0b10001111, 0
+realdata:    .byte 0xff, 0xff, 0, 0, 0, 0b10010010, 0b10001111, 0
 end_gdt:
+
+.globl vbe_struct
+
+    
+realidt:
+    .word 0x3ff
+    .int 0
+
 .section bss
     .skip 8192
 tmp_stack: //x86 stack grows downwards
     .skip 8192
+
+vbe_struct:
+    sig: .int 0
+    .comm data,512-4
