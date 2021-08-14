@@ -22,14 +22,37 @@ unsigned short default_colour=0x7;
 void buff_putchar(int x,int y,short c,unsigned short colour){
     *(unsigned short*)(buf_ptr+y*tres[0]+x)=(colour<<8 | c);
 }
-unsigned char cursorpos[2]={0,0};
+unsigned int cursorpos[2]={0,0};
 
-unsigned char prevcursorpos[2]={0,0};
+unsigned int prevcursorpos[2]={0,0};
 
 
 void set_term_colour(unsigned short c){
     default_colour=c;
 };
+
+void putpixel(unsigned int c,unsigned int x,unsigned int y){
+    unsigned char *p=globl_info.framebuffer_addr+((y*globl_info.framebuffer_width+x)*(globl_info.framebuffer_bpp/8));
+    for(char i=0;i<(globl_info.framebuffer_bpp/8);++i){
+        p[i]=(unsigned char)(c>>i);
+    }
+    
+    
+}
+
+void drawchar(unsigned char c, int x, int y, int fgcolor, int bgcolor)
+{
+	unsigned int cx,cy;
+	int mask[8]={1,2,4,8,16,32,64,128};
+	unsigned char *glyph=&vga_font[0]+c*16;
+ 
+	for(cy=0;cy<16;cy++){
+		for(cx=0;cx<8;cx++){
+			putpixel(glyph[cy]&mask[cx]?fgcolor:bgcolor,x+cx,y+cy);
+		}
+	}
+}
+
 void buf_flush(){
     unsigned short *fb;
     fb=(short unsigned int*)(unsigned int)globl_info.framebuffer_addr;
@@ -39,7 +62,11 @@ void buf_flush(){
         }
     }
     else{
-        ((unsigned int*)fb)[0]=0xffff;
+        for(unsigned long x=0;x<=(cursorpos[0]);++x){
+            for(unsigned long y=0;y<=(cursorpos[1]);++y){
+                drawchar((char)buf_ptr[y*tres[0]+x],x*8,y*16,0xffffffff,0);
+            }
+        }
     }
 }
 

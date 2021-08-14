@@ -122,11 +122,22 @@ pit_isr:
     jz .ring0
     movl $0x23,20(%esp)
     movl $0x1b,8(%esp)
+    movw $0x23,%ax
+    movw %ax,%ds
+    movw %ax,%es
+    movw %ax,%fs
+    movw %ax,%gs
+    
     
     jmp .end
     
     .ring0:
     movl $0x8,8(%esp)
+    movw $0x10,%ax
+    movw %ax,%ds
+    movw %ax,%es
+    movw %ax,%fs
+    movw %ax,%gs
     
     .end:
     

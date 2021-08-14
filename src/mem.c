@@ -65,19 +65,18 @@ void init_paging(){
     putstring("init_paging...");
     max_index=INDEX_FROM_BIT((globl_info.mem_upper+2048)/4);
     kernel_page_usage_bitmap=khmalloc(INDEX_FROM_BIT((globl_info.mem_upper+1024)/4));
+
+
     krnl_pagedir=khamalloc(sizeof(pagedir_t)*1024);
     krnl_pagedir[0].raw=(unsigned int)khamalloc(sizeof(page_t)*(0x400000/0x1000));    
     krnl_pagedir[0].s=0;
     krnl_pagedir[0].u=0;
     krnl_pagedir[0].r=1;
     krnl_pagedir[0].p=1;
-    for(unsigned int i=0;i<=0x100000;i+=0x1000)
+    for(unsigned int i=0;i<=0x200000;i+=0x1000)
         krnl_map_page(krnl_pagedir,i,i);
-    for(unsigned int i=0;i<=globl_info.framebuffer_height*globl_info.framebuffer_width*4/0x1000;++i)
+    for(unsigned int i=0;i<(globl_info.framebuffer_height*(1+globl_info.framebuffer_width)*(globl_info.framebuffer_bpp/8)/0x1000);++i)
         krnl_map_page(krnl_pagedir,globl_info.framebuffer_addr+i*0x1000,globl_info.framebuffer_addr+i*0x1000);
-    
-    
-   asm("xchg %bx,%bx");
     flush_page_table(krnl_pagedir);
     putstring(donemsg);
 }
