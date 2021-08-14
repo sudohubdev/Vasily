@@ -3,6 +3,7 @@
 #include <multiboot.h>
 #include "klibc/string.h"
 #include "heap.h"
+#include "font.h"
 
 unsigned int tres[2]={80,25};
 
@@ -22,6 +23,10 @@ void buff_putchar(int x,int y,short c,unsigned short colour){
     *(unsigned short*)(buf_ptr+y*tres[0]+x)=(colour<<8 | c);
 }
 unsigned char cursorpos[2]={0,0};
+
+unsigned char prevcursorpos[2]={0,0};
+
+
 void set_term_colour(unsigned short c){
     default_colour=c;
 };
@@ -32,6 +37,9 @@ void buf_flush(){
         for(unsigned long i=0;i<(cursorpos[1]*tres[0]+cursorpos[0]);++i){
             fb[i]=buf_ptr[i];
         }
+    }
+    else{
+        ((unsigned int*)fb)[0]=0xffff;
     }
 }
 
@@ -113,5 +121,13 @@ void move_cursor(int x,int y){
 
 void init_vga(){
     if(globl_info.framebuffer_type==2)
-        buf_ptr=khmalloc(tres[0]*2+tres[1]*tres[0]*2+tres[0]*2);
+        buf_ptr=khmalloc(2*(tres[0]*2+tres[1]*tres[0]*2+tres[0]*2));
+    else{
+        gres[0]=globl_info.framebuffer_width;
+        gres[1]=globl_info.framebuffer_height;
+        tres[0]=gres[0]/8;
+        tres[1]=gres[1]/16;
+        buf_ptr=khmalloc(2*(tres[0]*2+tres[1]*tres[0]*2+tres[0]*2));
+        
+    }
 }

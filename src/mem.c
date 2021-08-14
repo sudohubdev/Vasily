@@ -4,6 +4,7 @@
 #include "common.h"
 #include "klibc/string.h"
 #include "heap.h"
+#include <multiboot.h>
 #define INDEX_FROM_BIT(a) (a/(8*4))
 #define OFFSET_FROM_BIT(a) (a%(8*4))
 unsigned int max_index;
@@ -32,8 +33,16 @@ unsigned int find_first_from_bm(unsigned int* bm){
     return -1;
 }
 void krnl_map_page(pagedir_t* p,unsigned int physaddr,unsigned int virtaddr){
+    if(p[virtaddr/0x400000].raw==0){
+            p[virtaddr/0x400000].raw=(unsigned int)khamalloc(sizeof(page_t)*(0x400000/0x1000));
+    }
+    p[virtaddr/0x400000].s=0;
+    p[virtaddr/0x400000].u=0;
+    p[virtaddr/0x400000].r=1;
+    p[virtaddr/0x400000].p=1;
+    
     page_t* page=&((page_t*)(p[virtaddr/0x400000].page_table_addr<<12))[virtaddr%0x400000/0x1000];
-    page->raw=physaddr;
+    page->raw=physaddr&0xfffff000;
     page->p=1;
     page->r=1;
     page->u=0;
@@ -51,11 +60,12 @@ asm("flush_page_table:\
             ret;\
             ");
 void* realloc_test;
+extern multiboot_info_t globl_info;
 void init_paging(){
     putstring("init_paging...");
-    max_index=INDEX_FROM_BIT((globl_info.mem_upper+1024)/4);
+    max_index=INDEX_FROM_BIT((globl_info.mem_upper+2048)/4);
     kernel_page_usage_bitmap=khmalloc(INDEX_FROM_BIT((globl_info.mem_upper+1024)/4));
-    krnl_pagedir=khamalloc(sizeof(pagedir_t)*4);
+    krnl_pagedir=khamalloc(sizeof(pagedir_t)*1024);
     krnl_pagedir[0].raw=(unsigned int)khamalloc(sizeof(page_t)*(0x400000/0x1000));    
     krnl_pagedir[0].s=0;
     krnl_pagedir[0].u=0;
@@ -63,6 +73,11 @@ void init_paging(){
     krnl_pagedir[0].p=1;
     for(unsigned int i=0;i<=0x100000;i+=0x1000)
         krnl_map_page(krnl_pagedir,i,i);
+    for(unsigned int i=0;i<=globl_info.framebuffer_height*globl_info.framebuffer_width*4/0x1000;++i)
+        krnl_map_page(krnl_pagedir,globl_info.framebuffer_addr+i*0x1000,globl_info.framebuffer_addr+i*0x1000);
+    
+    
+   asm("xchg %bx,%bx");
     flush_page_table(krnl_pagedir);
     putstring(donemsg);
 }
