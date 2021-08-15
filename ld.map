@@ -96,7 +96,7 @@ Linker script and memory map
 .iplt           0x00000000000097e1        0x0
  .iplt          0x00000000000097e1        0x0 asm/x86-32/boot.o
 
-.data           0x000000000000a000     0x114e
+.data           0x000000000000a000     0x116e
  *(.data)
  .data          0x000000000000a000       0x4c asm/x86-32/boot.o
                 0x000000000000a000                gdt_info
@@ -116,26 +116,26 @@ Linker script and memory map
                 0x000000000000a080                sys_tss_table
  .data          0x000000000000a0e8        0x0 src/panic.o
  *fill*         0x000000000000a0e8       0x18 
- .data          0x000000000000a100     0x1040 src/vgatext.o
+ .data          0x000000000000a100     0x1060 src/vgatext.o
                 0x000000000000a100                default_colour
                 0x000000000000a102                istext
                 0x000000000000a104                gres
                 0x000000000000a10c                tres
                 0x000000000000a120                textmode_lookup
-                0x000000000000a140                vga_font
- .data          0x000000000000b140        0xe src/dev/pic.o
-                0x000000000000b140                p
- .data          0x000000000000b14e        0x0 src/fs/devfs.o
- .data          0x000000000000b14e        0x0 src/fs/vfs.o
+                0x000000000000a160                vga_font
+ .data          0x000000000000b160        0xe src/dev/pic.o
+                0x000000000000b160                p
+ .data          0x000000000000b16e        0x0 src/fs/devfs.o
+ .data          0x000000000000b16e        0x0 src/fs/vfs.o
 
-.got            0x000000000000b150        0x0
- .got           0x000000000000b150        0x0 asm/x86-32/boot.o
+.got            0x000000000000b170        0x0
+ .got           0x000000000000b170        0x0 asm/x86-32/boot.o
 
-.got.plt        0x000000000000b150        0x0
- .got.plt       0x000000000000b150        0x0 asm/x86-32/boot.o
+.got.plt        0x000000000000b170        0x0
+ .got.plt       0x000000000000b170        0x0 asm/x86-32/boot.o
 
-.igot.plt       0x000000000000b150        0x0
- .igot.plt      0x000000000000b150        0x0 asm/x86-32/boot.o
+.igot.plt       0x000000000000b170        0x0
+ .igot.plt      0x000000000000b170        0x0 asm/x86-32/boot.o
 
 .rodata         0x000000000000c000       0x22
  *(.rodata)
