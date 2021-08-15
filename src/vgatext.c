@@ -5,6 +5,10 @@
 #include "heap.h"
 #include "font.h"
 
+//TODO: LOOKUP TABLE UNFINISHED!!!!!!!
+
+unsigned int textmode_lookup[]={0,0xff,0xffff00,0xffff,0xff0000,0xff00ff,0xa52a2a,0xaaaaaa};
+
 unsigned int tres[2]={80,25};
 
 unsigned int gres[2]={720,400};
@@ -33,8 +37,8 @@ void set_term_colour(unsigned short c){
 
 void putpixel(unsigned int c,unsigned int x,unsigned int y){
     unsigned char *p=globl_info.framebuffer_addr+((y*globl_info.framebuffer_width+x)*(globl_info.framebuffer_bpp/8));
-    for(char i=0;i<(globl_info.framebuffer_bpp/8);++i){
-        p[i]=(unsigned char)(c>>i);
+    for(unsigned int i=0;i<(globl_info.framebuffer_bpp/8);++i){
+        p[i]=(255&(c>>(i*8)));
     }
     
     
@@ -48,7 +52,7 @@ void drawchar(unsigned char c, int x, int y, int fgcolor, int bgcolor)
  
 	for(cy=0;cy<16;cy++){
 		for(cx=0;cx<8;cx++){
-			putpixel(glyph[cy]&mask[cx]?fgcolor:bgcolor,x+cx,y+cy);
+			putpixel(glyph[cy]&mask[7-cx]?fgcolor:bgcolor,x+cx,y+cy);
 		}
 	}
 }
@@ -64,7 +68,7 @@ void buf_flush(){
     else{
         for(unsigned long x=0;x<=(cursorpos[0]);++x){
             for(unsigned long y=0;y<=(cursorpos[1]);++y){
-                drawchar((char)buf_ptr[y*tres[0]+x],x*8,y*16,0xffffffff,0);
+                drawchar((char)buf_ptr[y*tres[0]+x],x*8,y*16,textmode_lookup[default_colour],0);
             }
         }
     }
