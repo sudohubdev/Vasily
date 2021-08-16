@@ -44,16 +44,23 @@ void putpixel(unsigned int c,unsigned int x,unsigned int y){
     
 }
 
+
 void drawchar(unsigned char c, int x, int y, int fgcolor, int bgcolor)
 {
 	unsigned int cx,cy;
 	int mask[8]={1,2,4,8,16,32,64,128};
 	unsigned char *glyph=&vga_font[0]+c*16;
- 
+    if(c)
 	for(cy=0;cy<16;cy++){
 		for(cx=0;cx<8;cx++){
-			putpixel(glyph[cy]&mask[7-cx]?fgcolor:bgcolor,x+cx,y+cy);
+            putpixel(glyph[cy]&mask[7-cx]?fgcolor:bgcolor,x+cx,y+cy);
 		}
+	}
+	else 
+        for(cy=0;cy<16;cy++){
+            for(cx=0;cx<8;cx++){
+                putpixel(bgcolor,x+cx,y+cy);
+            }
 	}
 }
 
@@ -66,8 +73,10 @@ void buf_flush(){
         }
     }
     else{
-        for(unsigned long x=0;x<=(cursorpos[0]);++x){
+
+        for(unsigned long x=0;x<tres[0];++x){
             for(unsigned long y=0;y<=(cursorpos[1]);++y){
+                char c=(char)buf_ptr[y*tres[0]+x];
                 drawchar((char)buf_ptr[y*tres[0]+x],x*8,y*16,textmode_lookup[default_colour],0);
             }
         }
@@ -75,12 +84,19 @@ void buf_flush(){
 }
 
 void text_scroll(){
+    if(cursorpos[1]>0){
     for(unsigned int x=0;x<tres[0];++x){
-        for(unsigned int y=0;y<25;++y){
-            *(unsigned short*)(buf_ptr+y*tres[0]*2+x*2)=*(unsigned short*)(buf_ptr+tres[0]*2+y*tres[0]*2+x*2);
+        for(unsigned int y=1;y<cursorpos[1];++y){
+             buf_ptr[(y-1)*tres[0]+x]=buf_ptr[(y)*tres[0]+x];
         }
     }
+    for(unsigned int x=0;x<tres[0];++x){
+            buf_ptr[(cursorpos[1]-1)*tres[0]+x]=0;
+    }
+
+    
     --cursorpos[1];
+    }
         move_cursor(cursorpos[0],cursorpos[1]);
     buf_flush();
 }
@@ -93,7 +109,7 @@ void putstring(const char* s){
         if(*s=='\n'){
             ++cursorpos[1];
             cursorpos[0]=0;
-            if(cursorpos[1]>=25){
+            if(cursorpos[1]>=tres[1]){
                 text_scroll();
             }
         }
@@ -103,7 +119,7 @@ void putstring(const char* s){
             if(cursorpos[0]==tres[0]){
                 ++cursorpos[1];
                 cursorpos[0]=0;
-                if(cursorpos[1]>=25){
+                if(cursorpos[1]>=tres[1]){
                     text_scroll();
                 }
             }
@@ -147,10 +163,12 @@ void move_cursor(int x,int y){
         outb(0x3d4,0xe);
         outb(0x3d5,(unsigned char)((pos>>8)&0xff));
     }
+    else ;//drawchar('_',cursorpos[0]*8,cursorpos[1]*16,textmode_lookup[default_colour],0);
             
 }
 
 void init_vga(){
+
     if(globl_info.framebuffer_type==2)
         buf_ptr=khmalloc(2*(tres[0]*2+tres[1]*tres[0]*2+tres[0]*2));
     else{
@@ -159,6 +177,6 @@ void init_vga(){
         tres[0]=gres[0]/8;
         tres[1]=gres[1]/16;
         buf_ptr=khmalloc(2*(tres[0]*2+tres[1]*tres[0]*2+tres[0]*2));
-        
+        memset(buf_ptr,0,2*(tres[0]*2+tres[1]*tres[0]*2+tres[0]*2));
     }
 }

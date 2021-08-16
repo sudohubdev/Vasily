@@ -8,7 +8,7 @@ x86_o=$(x86_asm:.S=.o)
 c_src= $(wildcard src/*.c) $(wildcard src/dev/*.c) $(wildcard src/fs/*.c)
 c_obj=$(c_src:.c=.o)
 LDFLAGS=-ffreestanding -nostdlib -lgcc 
-CFLAGS= -Wall -Wextra -ffreestanding -O2 -Wall -Wextra -I/usr/include/multiboot -I./include -std=gnu99
+CFLAGS= -Wall -Wextra -ffreestanding -Ofast -Wall -Wextra -I/usr/include/multiboot -I./include -std=gnu99
 ASFLAGS=-I/usr/include/multiboot
 all: vasily.iso $(c_src) $(x86_asm)
 test: all
@@ -17,6 +17,8 @@ test4g: all
 	qemu-system-i386 -cdrom vasily.iso -m 4096
 bochs_test: all
 	bochs -f conf -q
+install: vmvasily 
+	sudo cp vmvasily /boot
 vasily.iso:  vmvasily
 	cp vmvasily iso/boot/vmvasily
 	grub-mkrescue -o vasily.iso iso

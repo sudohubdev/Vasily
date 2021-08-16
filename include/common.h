@@ -5,7 +5,8 @@
 #include <multiboot.h>
 #include "vgatext.h"
 
-extern char* donemsg;
+extern char donemsg_str[];
 
+extern char* donemsg;
 extern multiboot_info_t globl_info;
 #endif // COMMON_H_INCLUDED

@@ -27,6 +27,8 @@ struct task{
 */
 char kernel_task_name[]="vmvasily";
 
+
+
 void init_multitask(){
     putstring("init_multitask()...");
     current_task=kernel_task=(struct task*)khmalloc(sizeof(struct task));
@@ -38,8 +40,7 @@ void init_multitask(){
     asm("movl %%cr3,%%eax; movl %%eax, %0":"=g"(reg_cr3)::"eax");
     current_task->cr3=reg_cr3;    
     enable_multitask=1;
-    asm("sti;nop;nop;sti");
-    putstring("kernel task spawned...");
+    asm("sti;");
     putstring(donemsg);
 
 }

@@ -1,22 +1,23 @@
 ENTRY(_start)
 
 SECTIONS{
-    . = 0x8000;
+    . = 0x40000;
     __krnl_start = .;
     .text BLOCK(4k) : ALIGN(4k)
     {
         *(.multiboot)
         *(.text)
     }
-    .data BLOCK(4k) : ALIGN(4k)
-    {
-        *(.data)
-    }
     .rodata BLOCK(4k) : ALIGN(4k)
     {
         *(.rodata)
     }
 
+
+    .data BLOCK(4k) : ALIGN(4k)
+    {
+        *(.data)
+    }
 
     
     .bss BLOCK(4k) : ALIGN(4k) 
