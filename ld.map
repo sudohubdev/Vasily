@@ -67,10 +67,9 @@ Linker script and memory map
                 0x0000000000041580                krnl_map_page
                 0x00000000000415f0                init_paging
  *fill*         0x00000000000417a8        0x8 
- .text          0x00000000000417b0       0xab src/multitask.o
-                0x00000000000417b0                rand
-                0x00000000000417d0                init_multitask
- *fill*         0x000000000004185b        0x5 
+ .text          0x00000000000417b0       0xa2 src/multitask.o
+                0x00000000000417b0                init_multitask
+ *fill*         0x0000000000041852        0xe 
  .text          0x0000000000041860       0x65 src/panic.o
                 0x0000000000041860                __internal_panic
  *fill*         0x00000000000418c5        0xb 
@@ -103,7 +102,7 @@ Linker script and memory map
  .rodata        0x0000000000043004       0x12 src/vgatext.o
  .rodata        0x0000000000043016        0xc src/fs/vfs.o
 
-.rodata.str1.1  0x0000000000043022       0x8a
+.rodata.str1.1  0x0000000000043022       0x8f
  .rodata.str1.1
                 0x0000000000043022       0x36 src/heap.o
  .rodata.str1.1
@@ -111,14 +110,14 @@ Linker script and memory map
  .rodata.str1.1
                 0x0000000000043066       0x1d src/mem.o
  .rodata.str1.1
-                0x0000000000043083       0x14 src/multitask.o
+                0x0000000000043083       0x19 src/multitask.o
  .rodata.str1.1
-                0x0000000000043097       0x15 src/panic.o
+                0x000000000004309c       0x15 src/panic.o
 
-.rel.dyn        0x00000000000430ac        0x0
- .rel.got       0x00000000000430ac        0x0 asm/x86-32/boot.o
- .rel.iplt      0x00000000000430ac        0x0 asm/x86-32/boot.o
- .rel.text      0x00000000000430ac        0x0 asm/x86-32/boot.o
+.rel.dyn        0x00000000000430b4        0x0
+ .rel.got       0x00000000000430b4        0x0 asm/x86-32/boot.o
+ .rel.iplt      0x00000000000430b4        0x0 asm/x86-32/boot.o
+ .rel.text      0x00000000000430b4        0x0 asm/x86-32/boot.o
 
 .data           0x0000000000044000     0x116e
  *(.data)
@@ -137,7 +136,7 @@ Linker script and memory map
  .data          0x0000000000044054        0x0 src/mem.o
  *fill*         0x0000000000044054        0xc 
  .data          0x0000000000044060       0x88 src/multitask.o
-                0x0000000000044064                kernel_task_name
+                0x0000000000044060                kernel_task_name
                 0x0000000000044080                sys_tss_table
  .data          0x00000000000440e8        0x0 src/panic.o
  *fill*         0x00000000000440e8       0x18 
