@@ -1,6 +1,7 @@
 .section .text
 .globl pit_isr
 .globl key_isr
+.globl syscall_sr
 .globl int_stub
 .globl irq_stub
 .extern current_task //IT IS A POINTER 
@@ -41,6 +42,27 @@ struct task{
  */
 
  .code32
+ 
+
+ 
+temp: .int 0
+/*int c_syscall(int edi(code),int (return int pointer)esi,int edx,int ecx,int ebx,int eax,int ebp);*/
+syscall_sr:
+    pushal
+    pushl %edi
+    pushl %esi
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    pushl %eax
+    pushl %ebp
+    call c_syscall
+    movl %eax,temp
+    add $28,%esp
+    popal
+    movl temp,%eax
+    iret
+
 pit_isr:
     pushw %ax
     movb $0x20,%al

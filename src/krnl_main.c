@@ -13,4 +13,5 @@ void krnl_main(multiboot_info_t* inf){
         ((unsigned char*)&globl_info)[i]=((unsigned char*)inf)[i];
     }
     initialize_crap();
+    asm("int $0x60");
 }

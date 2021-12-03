@@ -1,6 +1,7 @@
 #include "idt.h"
 #include "common.h"
 #include "isr.h"
+#include "syscall.h"
 struct idt_info idtinf;
 struct idt krnl_idt[129]={{0,0,0,0,0}};
 void set_idt_entry(unsigned int num,void* func,unsigned short sel,unsigned char type){
@@ -21,6 +22,7 @@ void init_idt(){
     }
     set_idt_entry(0x20,pit_isr,0x8,0x8e);
     set_idt_entry(0x21,key_isr,0x8,0x8e);
+    set_idt_entry(0x60,syscall_sr,0x8,0x8e);
     asm("lidt idtinf;cli");
     putstring(donemsg);
 }

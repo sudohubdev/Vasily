@@ -5,6 +5,7 @@
 #include "idt.h"
 #include "mem.h"
 #include "heap.h"
+#include "syscall.h"
 #include "multitask.h"
 #include <multiboot.h>
 #include "fs/vfs.h"

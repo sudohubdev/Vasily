@@ -5,9 +5,10 @@
 #include "heap.h"
 #include "font.h"
 
-//TODO: LOOKUP TABLE UNFINISHED!!!!!!!
 
-unsigned int textmode_lookup[]={0,0xaa,0xaa00,0xaaaa,0xaa0000,0xaa00aa,0xaa5500,0xaaaaaa,0x555555,0x5555ff,0x55ff55,0x55ffff,0xff5555,0xff55ff,0xffff00,0xffffff};
+unsigned int textmode_lookup[]={0,0xaa,0xaa00,0xaaaa,0xaa0000
+    ,0xaa00aa,0xaa5500,0xaaaaaa,0x555555,0x5555ff,
+    0x55ff55,0x55ffff,0xff5555,0xff55ff,0xffff00,0xffffff};
 
 unsigned int tres[2]={80,25};
 
@@ -97,8 +98,9 @@ void text_scroll(){
     
     --cursorpos[1];
     }
+        buf_flush();
+
         move_cursor(cursorpos[0],cursorpos[1]);
-    buf_flush();
 }
 
 
@@ -126,8 +128,9 @@ void putstring(const char* s){
         }
 
     }while((*++s)!=0);
+            buf_flush();
+
         move_cursor(cursorpos[0],cursorpos[1]);
-        buf_flush();
 
 }
 int strlen(char* s){
@@ -163,8 +166,9 @@ void move_cursor(int x,int y){
         outb(0x3d4,0xe);
         outb(0x3d5,(unsigned char)((pos>>8)&0xff));
     }
-    else ;//drawchar('_',cursorpos[0]*8,cursorpos[1]*16,textmode_lookup[default_colour],0);
-            
+    else{ 
+        drawchar(0xdb,cursorpos[0]*8,(cursorpos[1])*16,textmode_lookup[default_colour],0);
+    }
 }
 
 void init_vga(){
