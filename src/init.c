@@ -19,5 +19,6 @@ void initialize_crap(){
     init_paging();
     init_vfs();
     init_multitask();
+    init_pci();
     //TODO: KERNEL MODULES
 }  

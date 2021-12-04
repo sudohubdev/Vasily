@@ -1,5 +1,6 @@
 #include "fs/devfs.h"
 #include "heap.h"
+#include "posix/errno.h"
 
 /*
 struct vfs_node{
@@ -51,4 +52,11 @@ void devfs_init(){
         devfs_root->read=devfs_read;
         devfs_root->write=devfs_write;
         devfs_root->readdir=devfs_readdir;
+        devfs_root->name[0]='d';
+        devfs_root->name[1]='e';
+        devfs_root->name[2]='v';
+        devfs_root->name[3]=0;
+        devfs_root->type=vfsdir;
+        memroot->child=devfs_root;
+        
 }

@@ -3,29 +3,28 @@
 #include "vgatext.h"
 #include "common.h"
 #include "heap.h"
+#include "klibc/string.h"
 
 extern unsigned int cursorpos[2];
 
-struct vfs_node* root, *devfs;
+struct vfs_node* memroot;
 
 /*
 struct vfs_node{
-    char isdir;
-    char ismounted;
     decl_open((*open));
     decl_close((*close));
     decl_read((*read));
     decl_write((*write));
+    decl_readdir((*readdir));
     decl_finddir((*finddir));
-    decl_open((*mount_open));
-    decl_close((*mount_close));
-    decl_read((*mount_read));
-    decl_write((*mount_write));
-    decl_finddir((*mount_finddir));
+    struct vfs_node* mountpoint; //mountpoint is null if nothing is mounted
     char name[255];
     unsigned short perms;
     unsigned int uid,gid;
     unsigned long long sz;
+    unsigned int inode;
+    struct vfs_node* next,*child;
+    char type;
 };
 
 #define decl_open(name) int name(const char* path, int flags) 
@@ -38,10 +37,45 @@ struct vfs_node{
 void init_vfs(){
     putstring("init_vfs...");
     
-    root=khmalloc(sizeof(struct vfs_node));
+    memroot=khmalloc(sizeof(struct vfs_node));
+    memroot->perms=0b111101101;
+    memroot->type=vfsdir;
+    memroot->open=open;
+    memroot->close=close;
+    memroot->read=read;
+    memroot->write=write;
+    memroot->readdir=readdir;
+    memroot->finddir=finddir;
+    memroot->mountpoint=0;
+    strcpy(memroot->name,"memroot");
+    memroot->next=0;
+    
     
     devfs_init();
     
+
+    
     putstring(donemsg);
+}
+
+
+decl_open(open){
+
+    return 0;
+}
+decl_close(close){
+    return 0;
+}
+decl_read(read){
+    return 0;
+}
+decl_write(write){
+    return 0;
+}
+decl_readdir(readdir){
+    return 0;
+}
+decl_finddir(finddir){
+    return 0;
 }
 

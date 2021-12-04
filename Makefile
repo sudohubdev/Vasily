@@ -11,6 +11,11 @@ LDFLAGS=-ffreestanding -nostdlib -lgcc
 CFLAGS= -Wall -Wextra -ffreestanding -Ofast -Wall -Wextra -I/usr/include/multiboot -I./include -std=gnu99
 ASFLAGS=-I/usr/include/multiboot
 all: vasily.iso $(c_src) $(x86_asm)
+
+clean:
+	-rm src/*.o src/fs/*.o src/dev/*.o
+	
+
 test: all
 	qemu-system-i386 -cdrom vasily.iso
 test4g: all
