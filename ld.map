@@ -14,7 +14,7 @@ Linker script and memory map
                 0x0000000000040000                . = 0x40000
                 0x0000000000040000                __krnl_start = .
 
-.text           0x0000000000040000     0x2c9a
+.text           0x0000000000040000     0x2cba
  *(.multiboot)
  .multiboot     0x0000000000040000       0x30 asm/x86-32/header.o
  *(.text)
@@ -97,35 +97,35 @@ Linker script and memory map
                 0x0000000000042370                move_cursor
                 0x0000000000042420                init_vga
  *fill*         0x00000000000424c5        0xb 
- .text          0x00000000000424d0      0x50b src/dev/pci.o
+ .text          0x00000000000424d0      0x52b src/dev/pci.o
                 0x00000000000424d0                readconfword
                 0x0000000000042530                chkdev
                 0x0000000000042610                chkfunc
-                0x0000000000042780                chkbus
-                0x00000000000427b0                init_pci
- *fill*         0x00000000000429db        0x5 
- .text          0x00000000000429e0       0xf7 src/dev/pic.o
-                0x00000000000429e0                init_pic
- *fill*         0x0000000000042ad7        0x9 
- .text          0x0000000000042ae0       0xb2 src/fs/devfs.o
-                0x0000000000042ae0                devfs_open
-                0x0000000000042af0                devfs_close
-                0x0000000000042b00                devfs_readdir
-                0x0000000000042b10                devfs_read
-                0x0000000000042b20                devfs_write
-                0x0000000000042b30                devfs_init
- *fill*         0x0000000000042b92        0xe 
- .text          0x0000000000042ba0       0xfa src/fs/vfs.o
-                0x0000000000042ba0                open
-                0x0000000000042bb0                close
-                0x0000000000042bc0                read
-                0x0000000000042bd0                readdir
-                0x0000000000042be0                finddir
-                0x0000000000042bf0                write
-                0x0000000000042c00                init_vfs
+                0x0000000000042790                chkbus
+                0x00000000000427c0                init_pci
+ *fill*         0x00000000000429fb        0x5 
+ .text          0x0000000000042a00       0xf7 src/dev/pic.o
+                0x0000000000042a00                init_pic
+ *fill*         0x0000000000042af7        0x9 
+ .text          0x0000000000042b00       0xb2 src/fs/devfs.o
+                0x0000000000042b00                devfs_open
+                0x0000000000042b10                devfs_close
+                0x0000000000042b20                devfs_readdir
+                0x0000000000042b30                devfs_read
+                0x0000000000042b40                devfs_write
+                0x0000000000042b50                devfs_init
+ *fill*         0x0000000000042bb2        0xe 
+ .text          0x0000000000042bc0       0xfa src/fs/vfs.o
+                0x0000000000042bc0                open
+                0x0000000000042bd0                close
+                0x0000000000042be0                read
+                0x0000000000042bf0                readdir
+                0x0000000000042c00                finddir
+                0x0000000000042c10                write
+                0x0000000000042c20                init_vfs
 
-.iplt           0x0000000000042c9a        0x0
- .iplt          0x0000000000042c9a        0x0 asm/x86-32/boot.o
+.iplt           0x0000000000042cba        0x0
+ .iplt          0x0000000000042cba        0x0 asm/x86-32/boot.o
 
 .rodata         0x0000000000043000       0x16
  *(.rodata)

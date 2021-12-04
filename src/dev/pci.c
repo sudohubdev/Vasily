@@ -39,12 +39,14 @@ unsigned short readconfword(unsigned char bus, unsigned char dev, unsigned char 
      it->func=function;
      it->classcode=baseClass;
      it->subclass=subClass;
-     it->next=khmalloc(sizeof(struct pcidev));
      unsigned short vendorID = readconfword(bus,device,function,0);
      it->vendorid=vendorID;
      it->devid=readconfword(bus,device,function,2);
-     
+     it->next=khmalloc(sizeof(struct pcidev));
+     it->next->prev=it;
      it=it->next;
+     
+
      
      if ((baseClass == 0x6) && (subClass == 0x4)) {
          secondaryBus = readconfword(bus, device, function,0x19);
@@ -58,6 +60,7 @@ void chkdev(unsigned char bus, unsigned char device) {
      if (vendorID == 0xFFFF) return; // Device doesn't exist
      chkfunc(bus, device, function);
      unsigned short headerType = readconfword(bus,device,function,0xe);
+     
      if( (headerType & 0x80) != 0) {
          // It's a multi-function device, so check remaining functions
          for (function = 1; function < 8; function++) {
@@ -104,6 +107,8 @@ void init_pci(){
              chkbus(bus);
          }
     }
+    it=it->prev;
+    khfree(it->next);
     it->next=0;
     it=pciroot;
     putstring("\n====pci device report====\n");
