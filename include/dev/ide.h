@@ -1,5 +1,19 @@
 #pragma once
 void init_ide();
+
+struct ide_device {
+  unsigned char Reserved;      // 0 (Empty) or 1 (This Drive really exists).
+  unsigned int Channel;       // channel id
+  unsigned char Drive;         // 0 (Master Drive) or 1 (Slave Drive).
+  unsigned short Type;         // 0: ATA, 1:ATAPI.
+  unsigned short Signature;    // Drive Signature
+  unsigned short Capabilities; // Features.
+  unsigned int CommandSets;    // Command Sets Supported.
+  unsigned int Size;           // Size in Sectors.
+  char Model[41];     // Model in string.
+  unsigned int devfs_inode;
+};
+
 struct IDEChannelRegisters {
   unsigned short base;  // I/O Base.
   unsigned short ctrl;  // Control Base
@@ -7,7 +21,11 @@ struct IDEChannelRegisters {
   unsigned char nIEN;   // nIEN (No Interrupt);
   struct IDEChannelRegisters *next,*second;
   unsigned int id;
+  struct ide_device ide_devices[4];
 };
+
+
+
 #define ATA_SR_BSY     0x80    // Busy
 #define ATA_SR_DRDY    0x40    // Drive ready
 #define ATA_SR_DF      0x20    // Drive write fault

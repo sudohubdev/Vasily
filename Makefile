@@ -17,7 +17,7 @@ clean:
 	
 
 test: all
-	qemu-system-i386 -cdrom vasily.iso -hda test.qcow2
+	qemu-system-i386 -cdrom vasily.iso -hda test.img
 test4g: all
 	qemu-system-i386 -cdrom vasily.iso -m 4096
 bochs_test: all
