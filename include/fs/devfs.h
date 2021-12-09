@@ -11,3 +11,4 @@ decl_readdir(devfs_readdir);
 decl_finddir(devfs_finddir);
 
 void devfs_init();
+struct vfs_node* devfs_int_creat();
