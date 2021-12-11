@@ -11,5 +11,5 @@ void krnl_main(multiboot_info_t *inf) {
   asm("cli;lgdt gdt_info");
   memcpy(&globl_info,inf,sizeof(multiboot_info_t));
   initialize_crap();
-  asm("int $0x60");
+  asm("ud2");
 }

@@ -644,10 +644,6 @@ void init_ide() {
     }
     it = it->next;
   }
-  // unsigned char ide_read_sectors(unsigned char drive_inode, unsigned char
-  // numsects, unsigned int lba,unsigned short es, unsigned int buffer) {
 
-  putunum(ide_read_sectors(1, 2, 0, 0x10, (unsigned int)&testbuf),10);
-  putstring(testbuf);
   putstring(donemsg_str);
 }

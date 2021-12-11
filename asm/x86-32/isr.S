@@ -8,6 +8,28 @@
 .extern current_task //IT IS A POINTER 
 .extern kernel_task  //IT IS A POINTER
 .extern sys_tss_table
+.globl error_0
+.globl error_2
+.globl error_3
+.globl error_4
+.globl error_5
+.globl error_6
+.globl error_7
+.globl error_8
+.globl error_10
+.globl error_11
+.globl error_12
+.globl error_13
+.globl error_14
+.globl error_17
+.globl error_18
+.globl error_19
+.globl error_20
+.globl error_21
+.globl error_28
+.globl error_29
+.globl error_30
+.globl err_code
 
 ebxbac: .int 0
 eaxbac: .int 0
@@ -188,6 +210,174 @@ irq_stub:
     popw %ax
     iretl
     
+.extern exception_handler
+    
+err_code: .int 0
+err_eip: .int 0
+
+error_0:
+    pushal
+    movl $0,err_code
+
+    
+    popal
+    iretl
+error_2:
+    pushal
+    movl $2,err_code
+    
+    popal
+    iretl
+    
+error_3:
+    pushal
+    movl $3,err_code
+    
+    popal
+    iretl
+    
+error_4:
+    pushal
+    movl $4,err_code
+    
+    popal
+    iretl
+    
+error_5:
+    pushal
+    movl $5,err_code
+    
+    popal
+    iretl
+    
+error_6:
+    pushl %ebx
+    movl 4(%esp),%ebx
+    movl %ebx,err_eip
+    popl %ebx
+    pushal
+    movl current_task,%ebx
+    cmpb $0,28(%ebx)
+    jnz 1
+    movl $6,err_code
+    pushl -44(%esp)
+    pushl $0
+    pushl err_eip
+    call exception_handler
+    cli
+    hlt
+    1:
+    
+    popal
+    iretl
+    
+error_7:
+    pushal
+    movl $7,err_code
+    
+    popal
+    iretl
+    
+error_8:
+    pushal
+    movl $8,err_code
+    
+    popal
+    
+    iretl
+error_10:
+    pushal
+    movl $10,err_code
+    
+    popal
+    iretl
+    
+error_11:
+    pushal
+    movl $11,err_code
+    
+    popal
+    iretl
+    
+error_12:
+    pushal
+    movl $12,err_code
+    
+    popal
+    iretl
+    
+error_13:
+    pushal
+    movl $13,err_code
+    
+    popal
+    iretl
+    
+error_14:
+    pushal
+    movl $14,err_code
+    
+    popal
+    iretl
+    
+error_17:
+    pushal
+    movl $17,err_code
+    
+    popal
+    iretl
+    
+error_18:
+    pushal
+    movl $18,err_code
+    
+    popal
+    iretl
+    
+error_19:
+    pushal
+    movl $19,err_code
+    
+    popal
+    iretl
+    
+error_20:
+    pushal
+    movl $20,err_code
+    
+    popal
+    iretl
+    
+error_21:
+    pushal
+    movl $21,err_code
+    
+    popal
+    
+    iretl
+error_28:
+    pushal
+    movl $28,err_code
+    
+    popal
+    iretl
+    
+error_29:
+    pushal
+    movl $29,err_code
+    
+    popal
+    iretl
+    
+error_30:
+    pushal
+    movl $30,err_code
+    
+    popal
+    iretl
+    
+
+
 .extern ide_irq_invoked
 
 irqstring: .string "ata IRQ!\n\0"

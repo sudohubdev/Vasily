@@ -20,6 +20,9 @@ unsigned short *buf_ptr;
 
 extern multiboot_info_t globl_info;
 
+
+
+
 unsigned short default_colour = 0x7;
 void buff_putchar(int x, int y, short c, unsigned short colour) {
   *(unsigned short *)(buf_ptr + y * tres[0] + x) = (colour << 8 | c);
@@ -70,7 +73,7 @@ void buf_flush() {
     for (unsigned long x = 0; x < tres[0]; ++x) {
       for (unsigned long y = 0; y <= (cursorpos[1]); ++y) {
         drawchar((char)buf_ptr[y * tres[0] + x], x * 8, y * 16,
-                 textmode_lookup[default_colour], 0);
+                 textmode_lookup[buf_ptr[y * tres[0] + x]>>8], 0);
       }
     }
   }
@@ -120,6 +123,29 @@ void putstring(const char *s) {
 
   move_cursor(cursorpos[0], cursorpos[1]);
 }
+
+void putstring_xy(const char *s,unsigned int x,unsigned int y,unsigned int fc) {
+  x/=8;
+  y/=16;
+  unsigned int orgx=x;
+  do {
+    if (*s == '\n') {
+      ++y;
+      x=orgx;
+    } else {
+      buff_putchar( x, y,*s, fc);
+      ++x;
+      if (x == tres[0]) {
+        ++y;
+        x = orgx;
+      }
+    }
+
+  } while ((*++s) != 0);
+  cursorpos[1]=y;
+  buf_flush();
+
+}
 int strlen(char *s) {
   int i;
   for (i = 0; s[i]; ++i)
@@ -143,6 +169,20 @@ void putunum(unsigned int i, int base) {
   } while ((i /= base) > 0);
   reverse(s);
   putstring(s);
+}
+void putunum_xy(unsigned int i, int base,int xoff,unsigned int y,unsigned int fc) {
+  char s[10] = {0};
+  int it = 0;
+  do {
+    s[it++] = "0123456789ABCDEF\0"[i % base];
+  } while ((i /= base) > 0);
+  if(base==16){
+    while(it<8){
+        s[it++]='0';
+    }
+  }
+  reverse(s);
+  putstring_xy(s,gres[0]/2-strlen(s)/2+xoff,y,fc);
 }
 void move_cursor(int x, int y) {
   if (globl_info.framebuffer_type == 2) {
@@ -169,4 +209,7 @@ void init_vga() {
     buf_ptr = khmalloc(2 * (tres[0] * 2 + tres[1] * tres[0] * 2 + tres[0] * 2));
     memset(buf_ptr, 0, 2 * (tres[0] * 2 + tres[1] * tres[0] * 2 + tres[0] * 2));
   }
+
+
+      
 }
