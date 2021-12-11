@@ -68,9 +68,9 @@ realidt:
     .int 0
 
 .section bss
-    .skip 8192
+    .skip 16384
 tmp_stack: //x86 stack grows downwards
-    .skip 8192
+    .skip 16384
 
 vbe_struct:
     sig: .int 0

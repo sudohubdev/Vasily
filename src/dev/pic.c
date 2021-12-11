@@ -3,6 +3,7 @@
 #include "io.h"
 #include "vgatext.h"
 char p[] = "init_pic()...";
+
 void init_pic() {
   putstring(p);
   unsigned char a1, a2;
@@ -27,6 +28,7 @@ void init_pic() {
   outb(0xa1, 1);
   io_wait();
 
+  a2&=0b111111;
   outb(0x21, a1);
   io_wait();
   outb(0xa1, a2);

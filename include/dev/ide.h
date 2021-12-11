@@ -21,6 +21,7 @@ struct IDEChannelRegisters {
   unsigned char nIEN;   // nIEN (No Interrupt);
   struct IDEChannelRegisters *next,*second;
   unsigned int id;
+  unsigned char irq;
   struct ide_device ide_devices[4];
 };
 

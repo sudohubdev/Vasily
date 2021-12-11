@@ -3,6 +3,7 @@
 .globl key_isr
 .globl syscall_sr
 .globl int_stub
+.globl atapi_isr
 .globl irq_stub
 .extern current_task //IT IS A POINTER 
 .extern kernel_task  //IT IS A POINTER
@@ -185,4 +186,15 @@ irq_stub:
     movb $0x20,%al
     outb %al,$0x20
     popw %ax
+    iretl
+    
+.extern ide_irq_invoked
+
+irqstring: .string "ata IRQ!\n\0"
+
+atapi_isr:
+    movb $1,ide_irq_invoked
+    movb $0x20,%al
+    outb %al,$0xa0
+    outb %al,$0x20
     iretl

@@ -3,7 +3,7 @@ extern struct pcidev* pciroot;
 
 struct pcidev{
     unsigned char bus,dev,func;
-    unsigned char classcode,subclass;
+    unsigned char classcode,subclass,irq;
     unsigned short vendorid,devid;
     struct pcidev* next,*prev;
 };

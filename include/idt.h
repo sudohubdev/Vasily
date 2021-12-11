@@ -11,3 +11,5 @@ struct idt{
     unsigned short offset_h;
 }__attribute__((packed));
 void init_idt();
+
+void set_idt_entry(unsigned int num, void *func, unsigned short sel,unsigned char type);

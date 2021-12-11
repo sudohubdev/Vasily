@@ -6,28 +6,30 @@
 #include "io.h"
 #include "posix/errno.h"
 #include "vgatext.h"
+#include "isr.h"
 int dev_it = 0;
 
 int idectrl_id_count = 0;
 struct IDEChannelRegisters *idechannelroot, *ideit;
 
 unsigned char ide_buf[2048] = {0};
-static unsigned char ide_irq_invoked = 0;
+volatile unsigned char ide_irq_invoked = 0;
 static unsigned char atapi_packet[12] = {0xA8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 struct IDEChannelRegisters *getchannel(unsigned int id) {
   struct IDEChannelRegisters *iter = idechannelroot;
   while (iter) {
     if (iter->id == id) {
-      goto breakoutofloop;
+        break;
+        
     }
     if (iter->second->id == id) {
       iter = iter->second;
-      goto breakoutofloop;
+      break;
     }
     iter = iter->next;
   }
-breakoutofloop:
+
   return iter;
 }
 
@@ -86,15 +88,17 @@ void ide_write(struct IDEChannelRegisters *channel, unsigned char reg,
     ide_write(channel, ATA_REG_CONTROL, channel->nIEN);
 }
 void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
-               unsigned int b3, unsigned int b4) {
+               unsigned int b3, unsigned int b4,unsigned char irq) {
   int k, count = 0;
 
+  
   // 1- Detect I/O Ports which interface IDE Controller:
   ideit->id = idectrl_id_count++;
   ideit->base = (b0 & 0xFFFFFFFC) + 0x1F0 * (!b0);
   ideit->ctrl = (b1 & 0xFFFFFFFC) + 0x3F6 * (!b1);
   ideit->bmide = (b4 & 0xFFFFFFFC) + 0; // Bus Master IDE
   ideit->second = khmalloc(sizeof(struct IDEChannelRegisters));
+  ideit->irq=
 
   ideit->second->base = (b2 & 0xFFFFFFFC) + 0x170 * (!b2);
   ideit->second->ctrl = (b3 & 0xFFFFFFFC) + 0x376 * (!b3);
@@ -128,6 +132,11 @@ void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
       io_wait();
       io_wait();
       io_wait();
+          io_wait();
+      io_wait();
+      io_wait();
+      io_wait();
+
       // This function should be implemented in your OS. which waits for 1 ms.
       // it is based on System Timer Device Driver.
 
@@ -427,24 +436,34 @@ breakout:
 }
 
 void ide_wait_irq() {
-  while (!ide_irq_invoked)
-    ;
+
+    while(!ide_irq_invoked);
+
   ide_irq_invoked = 0;
+}
+
+
+void __attribute__ ((optimize(0))) ide_atapi_wait(unsigned int channel){
+    //must use this stupid workaround since compiler has a weird bug
+    asm("workaround:");
+    char status=(ide_read(getchannel(channel), ATA_REG_STATUS) & (ATA_SR_BSY | ATA_SR_DRQ));
+    asm("cmpl $0,%0;jz workaround"::"m"(status));
+    
+    
 }
 
 unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,
                              unsigned char numsects, unsigned short selector,
                              unsigned int edi, unsigned int channel) {
 
+
   unsigned int slavebit = getchannel(channel)->ide_devices[drive].Drive;
   unsigned int bus = getchannel(channel)->base;
-  unsigned int words =
-      1024; // Sector Size. ATAPI drives have a sector size of 2048 bytes.
+  unsigned int words = 1024; // Sector Size. ATAPI drives have a sector size of 2048 bytes.
   unsigned char err;
   int i;
   struct IDEChannelRegisters *channel_ptr = getchannel(channel);
-  ide_write(channel_ptr, ATA_REG_CONTROL,
-            getchannel(channel)->nIEN = ide_irq_invoked = 0x0);
+  ide_write(channel_ptr, ATA_REG_CONTROL, getchannel(channel)->nIEN = ide_irq_invoked = 0x0);
   atapi_packet[0] = ATAPI_CMD_READ;
   atapi_packet[1] = 0x0;
   atapi_packet[2] = (lba >> 24) & 0xFF;
@@ -461,15 +480,10 @@ unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,
   for (int i = 0; i < 4; i++)
     ide_read(channel_ptr, ATA_REG_ALTSTATUS);
   ide_write(channel_ptr, ATA_REG_FEATURES, 0); // PIO mode.
-  ide_write(channel_ptr, ATA_REG_LBA1,
-            (words * 2) & 0xFF); // Lower Byte of Sector Size.
-  ide_write(
-      channel_ptr, ATA_REG_LBA2,
-      (words * 2) >>
-          8); // Upper Byte of Sector Size.   // (VI): Send the Packet Command:
+  ide_write(channel_ptr, ATA_REG_LBA1,(words * 2) & 0xFF); // Lower Byte of Sector Size.
+  ide_write(channel_ptr, ATA_REG_LBA2,(words * 2) >> 8); // Upper Byte of Sector Size.   // (VI): Send the Packet Command:
   // ------------------------------------------------------------------
   ide_write(channel_ptr, ATA_REG_COMMAND, ATA_CMD_PACKET); // Send the Command.
-
   // (VII): Waiting for the driver to finish or return an error code:
   // ------------------------------------------------------------------
   if ((err = ide_polling(getchannel(channel), 1)))
@@ -477,11 +491,10 @@ unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,
 
   // (VIII): Sending the packet data:
   // ------------------------------------------------------------------
-  asm("rep   outsw"
-      :
-      : "c"(6), "d"(bus), "S"(atapi_packet)); // Send Packet Data
+  asm("rep   outsw":: "c"(6), "d"(bus), "S"(atapi_packet)); // Send Packet Data
   for (i = 0; i < numsects; i++) {
     ide_wait_irq(); // Wait for an IRQ.
+    
     if ((err = ide_polling(getchannel(channel), 1)))
       return err; // Polling and return if error.
     asm("pushw %es");
@@ -492,13 +505,13 @@ unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,
   }
   // (X): Waiting for an IRQ:
   // ------------------------------------------------------------------
-  ide_wait_irq();
 
+  ide_wait_irq();
+  io_wait();
   // (XI): Waiting for BSY & DRQ to clear:
   // ------------------------------------------------------------------
-  while (ide_read(getchannel(channel), ATA_REG_STATUS) &
-         (ATA_SR_BSY | ATA_SR_DRQ))
-    ;
+    ide_atapi_wait(channel );
+  //while(1);
 
   return 0; // Easy, ... Isn't it?
 }
@@ -547,8 +560,8 @@ breakout:
       err = ide_ata_access(ATA_READ, drive, lba, numsects, es, buffer);
     else if (getchannel(channel)->ide_devices[drive].Type == IDE_ATAPI)
       for (int i = 0; i < numsects; i++) {
-        err =
-            ide_atapi_read(drive, lba + i, 1, es, buffer + (i * 2048), channel);
+        //unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,unsigned char numsects, unsigned short selector,unsigned int edi, unsigned int channel)
+          err = ide_atapi_read(drive, lba + i, 1, es, buffer + (i * 2048), channel);
         ;
       }
   }
@@ -627,14 +640,14 @@ void init_ide() {
                                readconfword(it->bus, it->dev, it->func, 0x1c)),
                 (unsigned int)((readconfword(it->bus, it->dev, it->func, 0x22)
                                 << 16) |
-                               readconfword(it->bus, it->dev, it->func, 0x20)));
+                               readconfword(it->bus, it->dev, it->func, 0x20)),14);
     }
     it = it->next;
   }
   // unsigned char ide_read_sectors(unsigned char drive_inode, unsigned char
   // numsects, unsigned int lba,unsigned short es, unsigned int buffer) {
 
-  ide_read_sectors(0, 1, 1, 0x10, (unsigned int)&testbuf);
+  putunum(ide_read_sectors(1, 2, 0, 0x10, (unsigned int)&testbuf),10);
   putstring(testbuf);
   putstring(donemsg_str);
 }

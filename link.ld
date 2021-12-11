@@ -8,23 +8,23 @@ SECTIONS{
         *(.multiboot)
         *(.text)
     }
-    .rodata BLOCK(4k) : ALIGN(4k)
-    {
-        *(.rodata)
-    }
-
-
     .data BLOCK(4k) : ALIGN(4k)
     {
         *(.data)
     }
-
     
     .bss BLOCK(4k) : ALIGN(4k) 
     {
         *(COMMON)
         *(.bss)
     }
-    . = . + 16K;
+    
+    .rodata BLOCK(4k) : ALIGN(4k)
+    {
+        *(.rodata)
+    }
+    
+    . = . + 4K;
+    
      __krnl_end = ALIGN(16k);
 }

@@ -43,8 +43,10 @@ void chkfunc(unsigned char bus, unsigned char device, unsigned char function) {
   unsigned short vendorID = readconfword(bus, device, function, 0);
   it->vendorid = vendorID;
   it->devid = readconfword(bus, device, function, 2);
+  it->irq=readconfword(bus,device,function,0x3c);
   it->next = khmalloc(sizeof(struct pcidev));
   it->next->prev = it;
+  
   it = it->next;
 
   if ((baseClass == 0x6) && (subClass == 0x4)) {
@@ -122,6 +124,9 @@ void init_pci() {
     putunum(it->classcode, 16);
     putstring(" subclass ");
     putunum(it->subclass, 16);
+    
+    putstring(" irq ");
+    putunum(it->irq,16);
 
     putstring(" vendor:device ");
     putunum(it->vendorid, 16);
