@@ -359,6 +359,7 @@ unsigned short *buf_ptr;
 
 extern multiboot_info_t globl_info;
 
+unsigned short *buf_curpos;
 
 int enable_log=1;
 
@@ -410,11 +411,13 @@ void buf_flush() {
     }
   } else {
 
-    for (unsigned long x = 0; x < tres[0]; ++x) {
-      for (unsigned long y = 0; y <= (cursorpos[1]); ++y) {
-        drawchar((char)buf_ptr[y * tres[0] + x], x * 8, y * 16,
-                 textmode_lookup[buf_ptr[y * tres[0] + x]>>8], 0);
-      }
+    for (unsigned long y = 0; y <= (cursorpos[1]); ++y) {
+       for (unsigned long x = 0; x <= buf_curpos[y]; ++x) {
+
+            drawchar((char)buf_ptr[y * tres[0] + x], x * 8, y * 16,textmode_lookup[buf_ptr[y * tres[0] + x]>>8], 0);
+      
+          
+        }
     }
   }
 }
@@ -433,6 +436,7 @@ void text_scroll() {
 
     --cursorpos[1];
   }
+  memcpy(buf_ptr,buf_ptr+2,tres[1]*2);
   buf_flush();
 
   move_cursor(cursorpos[0], cursorpos[1]);
@@ -441,6 +445,7 @@ void text_scroll() {
 void putstring(const char *s) {
   do {
     if (*s == '\n') {
+      buf_curpos[cursorpos[1]]=cursorpos[0];
       ++cursorpos[1];
       cursorpos[0] = 0;
       if (cursorpos[1] >= tres[1]) {
@@ -449,6 +454,7 @@ void putstring(const char *s) {
     } else {
       buff_putchar(cursorpos[0], cursorpos[1], *s, default_colour);
       ++cursorpos[0];
+      ++buf_curpos[cursorpos[1]];
       if (cursorpos[0] == tres[0]) {
         ++cursorpos[1];
         cursorpos[0] = 0;
@@ -534,8 +540,7 @@ void move_cursor(int x, int y) {
     outb(0x3d4, 0xe);
     outb(0x3d5, (unsigned char)((pos >> 8) & 0xff));
   } else {
-    drawchar(0xdb, cursorpos[0] * 8, (cursorpos[1]) * 16,
-             textmode_lookup[default_colour], 0);
+    drawchar(0xdb, cursorpos[0] * 8, (cursorpos[1]) * 16,textmode_lookup[default_colour], 0);
   }
 }
 }
@@ -552,6 +557,8 @@ extern int enable_log;
     buf_ptr = khmalloc(2 * (tres[0] * 2 + tres[1] * tres[0] * 2 + tres[0] * 2));
     memset(buf_ptr, 0, 2 * (tres[0] * 2 + tres[1] * tres[0] * 2 + tres[0] * 2));
   }
+  buf_curpos = khmalloc(tres[1]*2);
+  
   if(!enable_log){
        if(globl_info.framebuffer_type!=2){
         for(int x=0;x<124;++x)
@@ -560,6 +567,5 @@ extern int enable_log;
             }
         }   
   }
-
       
 }

@@ -14,7 +14,7 @@ Linker script and memory map
                 0x0000000000040000                . = 0x40000
                 0x0000000000040000                __krnl_start = .
 
-.text           0x0000000000040000     0x5d2a
+.text           0x0000000000040000     0x5eba
  *(.multiboot)
  .multiboot     0x0000000000040000       0x30 asm/x86-32/header.o
  *(.text)
@@ -108,74 +108,74 @@ Linker script and memory map
  .text          0x0000000000042020       0x35 src/syscall.o
                 0x0000000000042020                c_syscall
  *fill*         0x0000000000042055        0xb 
- .text          0x0000000000042060      0xf90 src/vgatext.o
+ .text          0x0000000000042060     0x1120 src/vgatext.o
                 0x00000000000421f0                buff_putchar
                 0x0000000000042220                set_term_colour
                 0x0000000000042230                putpixel
                 0x00000000000422a0                drawchar
                 0x0000000000042440                buf_flush
-                0x00000000000425a0                putstring_xy
-                0x0000000000042670                strlen
-                0x0000000000042690                reverse
-                0x00000000000426e0                putunum_xy
-                0x0000000000042a50                move_cursor
-                0x0000000000042b20                text_scroll
-                0x0000000000042c50                putstring
-                0x0000000000042d00                putunum
-                0x0000000000042e60                init_vga
- .text          0x0000000000042ff0     0x22e1 src/dev/ide.o
-                0x0000000000042ff0                ide_atapi_wait
-                0x0000000000043030                getchannel
-                0x0000000000043080                ide_write
-                0x00000000000431a0                ide_read
-                0x0000000000043290                ide_read_buffer
-                0x00000000000433d0                ctrl_init
-                0x0000000000043d00                ide_polling
-                0x0000000000043d90                ide_ata_access
-                0x00000000000447b0                ide_wait_irq
-                0x00000000000447d0                ide_atapi_read
-                0x0000000000044bd0                ide_read_sectors
-                0x0000000000044e80                ide_write_sectors
-                0x00000000000450b0                init_ide
- *fill*         0x00000000000452d1        0xf 
- .text          0x00000000000452e0      0x10b src/dev/keyboard.o
-                0x00000000000452e0                keyboard_handler
- *fill*         0x00000000000453eb        0x5 
- .text          0x00000000000453f0      0x57b src/dev/pci.o
-                0x00000000000453f0                readconfword
-                0x0000000000045450                chkdev
-                0x0000000000045530                chkfunc
-                0x00000000000456d0                chkbus
-                0x0000000000045700                init_pci
- *fill*         0x000000000004596b        0x5 
- .text          0x0000000000045970       0xf9 src/dev/pic.o
-                0x0000000000045970                init_pic
- *fill*         0x0000000000045a69        0x7 
- .text          0x0000000000045a70      0x1bc src/fs/devfs.o
-                0x0000000000045a70                devfs_open
-                0x0000000000045a80                devfs_close
-                0x0000000000045a90                devfs_readdir
-                0x0000000000045aa0                devfs_read
-                0x0000000000045ab0                devfs_write
-                0x0000000000045ac0                devfs_finddir
-                0x0000000000045ad0                devfs_int_creat
-                0x0000000000045bc0                devfs_init
- *fill*         0x0000000000045c2c        0x4 
- .text          0x0000000000045c30       0xfa src/fs/vfs.o
-                0x0000000000045c30                open
-                0x0000000000045c40                close
-                0x0000000000045c50                read
-                0x0000000000045c60                readdir
-                0x0000000000045c70                finddir
-                0x0000000000045c80                write
-                0x0000000000045c90                init_vfs
+                0x0000000000042590                putstring_xy
+                0x00000000000427a0                strlen
+                0x00000000000427c0                reverse
+                0x0000000000042810                putunum_xy
+                0x0000000000042b80                move_cursor
+                0x0000000000042c50                text_scroll
+                0x0000000000042da0                putstring
+                0x0000000000042e70                putunum
+                0x0000000000042fd0                init_vga
+ .text          0x0000000000043180     0x22e1 src/dev/ide.o
+                0x0000000000043180                ide_atapi_wait
+                0x00000000000431c0                getchannel
+                0x0000000000043210                ide_write
+                0x0000000000043330                ide_read
+                0x0000000000043420                ide_read_buffer
+                0x0000000000043560                ctrl_init
+                0x0000000000043e90                ide_polling
+                0x0000000000043f20                ide_ata_access
+                0x0000000000044940                ide_wait_irq
+                0x0000000000044960                ide_atapi_read
+                0x0000000000044d60                ide_read_sectors
+                0x0000000000045010                ide_write_sectors
+                0x0000000000045240                init_ide
+ *fill*         0x0000000000045461        0xf 
+ .text          0x0000000000045470      0x10b src/dev/keyboard.o
+                0x0000000000045470                keyboard_handler
+ *fill*         0x000000000004557b        0x5 
+ .text          0x0000000000045580      0x57b src/dev/pci.o
+                0x0000000000045580                readconfword
+                0x00000000000455e0                chkdev
+                0x00000000000456c0                chkfunc
+                0x0000000000045860                chkbus
+                0x0000000000045890                init_pci
+ *fill*         0x0000000000045afb        0x5 
+ .text          0x0000000000045b00       0xf9 src/dev/pic.o
+                0x0000000000045b00                init_pic
+ *fill*         0x0000000000045bf9        0x7 
+ .text          0x0000000000045c00      0x1bc src/fs/devfs.o
+                0x0000000000045c00                devfs_open
+                0x0000000000045c10                devfs_close
+                0x0000000000045c20                devfs_readdir
+                0x0000000000045c30                devfs_read
+                0x0000000000045c40                devfs_write
+                0x0000000000045c50                devfs_finddir
+                0x0000000000045c60                devfs_int_creat
+                0x0000000000045d50                devfs_init
+ *fill*         0x0000000000045dbc        0x4 
+ .text          0x0000000000045dc0       0xfa src/fs/vfs.o
+                0x0000000000045dc0                open
+                0x0000000000045dd0                close
+                0x0000000000045de0                read
+                0x0000000000045df0                readdir
+                0x0000000000045e00                finddir
+                0x0000000000045e10                write
+                0x0000000000045e20                init_vfs
 
-.iplt           0x0000000000045d2a        0x0
- .iplt          0x0000000000045d2a        0x0 asm/x86-32/boot.o
+.iplt           0x0000000000045eba        0x0
+ .iplt          0x0000000000045eba        0x0 asm/x86-32/boot.o
 
-.text.unlikely  0x0000000000045d2a       0xa9
+.text.unlikely  0x0000000000045eba       0xa9
  .text.unlikely
-                0x0000000000045d2a       0xa9 src/dev/ide.o
+                0x0000000000045eba       0xa9 src/dev/ide.o
 
 .data           0x0000000000046000     0x30fa
  *(.data)
@@ -262,11 +262,12 @@ Linker script and memory map
                 0x000000000004a6b8                enable_multitask
  .bss           0x000000000004a6bc        0x0 src/panic.o
  .bss           0x000000000004a6bc        0x0 src/syscall.o
- .bss           0x000000000004a6bc       0x14 src/vgatext.o
+ .bss           0x000000000004a6bc       0x18 src/vgatext.o
                 0x000000000004a6bc                prevcursorpos
                 0x000000000004a6c4                cursorpos
-                0x000000000004a6cc                buf_ptr
- *fill*         0x000000000004a6d0       0x10 
+                0x000000000004a6cc                buf_curpos
+                0x000000000004a6d0                buf_ptr
+ *fill*         0x000000000004a6d4        0xc 
  .bss           0x000000000004a6e0      0xc30 src/dev/ide.o
                 0x000000000004a6e0                testbuf
                 0x000000000004aae0                ide_irq_invoked
