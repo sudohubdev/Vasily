@@ -360,7 +360,7 @@ unsigned short *buf_ptr;
 extern multiboot_info_t globl_info;
 
 
-int enable_log=0;
+int enable_log=1;
 
 unsigned short default_colour = 0x7;
 void buff_putchar(int x, int y, short c, unsigned short colour) {

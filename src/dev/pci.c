@@ -48,9 +48,8 @@ void chkfunc(unsigned char bus, unsigned char device, unsigned char function) {
   it->next->prev = it;
   
   it = it->next;
-
   if ((baseClass == 0x6) && (subClass == 0x4)) {
-    secondaryBus = readconfword(bus, device, function, 0x19);
+    secondaryBus = readconfword(bus, device, function, 0x18)>>8;
     chkbus(secondaryBus);
   }
 }
@@ -95,16 +94,16 @@ void init_pci() {
   putstring("init_pci()...");
   pciroot = it = khmalloc(sizeof(struct pcidev));
   unsigned char bus;
-  unsigned int headertype = readconfword(0, 0, 0, 0xe);
+  unsigned int headertype = readconfword(0, 0, 0, 0xe)&0xff;
   if ((headertype & 0x80) == 0) {
     chkbus(0);
   } else {
     unsigned int function;
     for (function = 0; function < 8; function++) {
-      if (readconfword(0, 0, function, 0) != 0xFFFF)
-        break;
-      bus = function;
-      chkbus(bus);
+      if (readconfword(0, 0, function, 0) != 0xFFFF){
+            bus = function;
+            chkbus(bus);
+      }
     }
   }
   it = it->prev;

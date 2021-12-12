@@ -363,7 +363,7 @@ void exception_handler(unsigned int eip,unsigned int code2,unsigned int flags,un
     if(globl_info.framebuffer_type!=2){
         for(int x=0;x<124;++x)
             for(int y=0;y<128;++y){
-                putpixel(*((unsigned int*)&_home_clement_Documents_crash_tga[(x/4+31*(y/4))*4+18]), x+(gres[0]/2-62), y+(gres[1]/2-128));
+                putpixel(*((unsigned int*)&_home_clement_Documents_crash_tga[(x/4+31*(y/4))*4+18]), x+(gres[0]/2-62), y+(gres[1]/2-145));
             }
     }
     err_code=0;
