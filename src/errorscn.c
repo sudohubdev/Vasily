@@ -340,8 +340,7 @@ unsigned char _home_clement_Documents_crash_tga[] = {
 
 extern unsigned int err_code;
 
-void exception_handler(unsigned int eip,unsigned int code2,unsigned int esp,unsigned int edi,unsigned int esi,unsigned int ebp,unsigned int unused_esp,unsigned int ebx,unsigned int edx,unsigned int ecx,unsigned int eax){
-    unused_esp+=4;
+void exception_handler(unsigned int eip,unsigned int code2,unsigned int flags,unsigned int cs,unsigned int edi,unsigned int esi,unsigned int ebp,unsigned int esp,unsigned int ebx,unsigned int edx,unsigned int ecx,unsigned int eax){
     putstring_xy("a fatal exception has occurred in the kernel",gres[0]/2-((sizeof("a fatal exception has occurred in the kernel")-1)/2*8),gres[1]/2,0xc);
     putstring_xy("exception code:      ",gres[0]/2-((sizeof("exception code:       ")-1)*8),gres[1]/2+32,0xc);
     putunum_xy(err_code,10,0,gres[1]/2+32,0xc);
@@ -357,6 +356,9 @@ void exception_handler(unsigned int eip,unsigned int code2,unsigned int esp,unsi
     putunum_xy(edx,16,32,gres[1]/2+80,0xc);
     putunum_xy(ecx,16,104,gres[1]/2+80,0xc);
     putunum_xy(eax,16,-112,gres[1]/2+96,0xc);
+    putunum_xy(flags,16,-40,gres[1]/2+96,0xc);
+    putunum_xy(cs,16,32,gres[1]/2+96,0xc);
+
 
     if(globl_info.framebuffer_type!=2){
         for(int x=0;x<124;++x)

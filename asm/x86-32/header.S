@@ -13,6 +13,6 @@ multiboot_header:
 .long 0
 .long 0
 istextmode: .long 0
-width:.long 1024
-length:.long 768
+width:.long 1280
+length:.long 720
 depth: .long 32

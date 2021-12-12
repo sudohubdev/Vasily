@@ -194,12 +194,20 @@ pit_isr:
 .s: 
     popf
     iretl
-
+.extern putunum
+.extern keyboard_handler
+okmsg: .string "\n\0"
 key_isr:
-    pushw %ax
+    pushal
     movb $0x20,%al
     outb %al,$0x20
-    popw %ax
+    movl $0,%eax
+    movl $0,%eax
+    inb $0x60,%al
+    pushl %eax
+    call keyboard_handler
+    addl $4,%esp
+    popal
     iretl
 int_stub:
     iretl
@@ -259,8 +267,9 @@ error_6:
     movl current_task,%ebx
     cmpb $0,28(%ebx)
     jnz 1
-    movl $6,err_code
-    pushl -44(%esp)
+    movl $6,err_code  
+    pushl 36(%esp)
+    pushl 44(%esp)
     pushl $0
     pushl err_eip
     call exception_handler
