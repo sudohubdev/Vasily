@@ -4,10 +4,12 @@
 #include "common.h"
 #include "heap.h"
 #include "klibc/string.h"
+#include "multitask.h"
 
 extern unsigned int cursorpos[2];
 
 struct vfs_node* memroot;
+
 
 /*
 struct vfs_node{
@@ -58,6 +60,9 @@ void init_vfs(){
     putstring(donemsg);
 }
 
+struct vfs_node* fd_node_find(int fd){
+    return current_task->fds[fd];
+}
 
 decl_open(open){
 

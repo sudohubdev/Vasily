@@ -1,4 +1,5 @@
 //totally not ripped from svr4
+#pragma once
 
 #define	EPERM	1	/* Not super-user			*/
 #define	ENOENT	2	/* No such file or directory		*/

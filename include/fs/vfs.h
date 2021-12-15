@@ -15,10 +15,10 @@ struct dirent{
      char name[128];
 };
 
-#define decl_open(name) int name(const struct vfs_node* in, int flags) 
+#define decl_open(name) int name(struct vfs_node* in, int flags) 
 #define decl_close(name) int name(int fd) 
-#define decl_read(name) unsigned long name(int fd, void* buf,unsigned long count)
-#define decl_write(name) unsigned long name(int fd,void* buf,unsigned long count)
+#define decl_read(name) unsigned long name(int fd, void* buf,unsigned long count,unsigned int off)
+#define decl_write(name) unsigned long name(int fd,void* buf,unsigned long count,unsigned int off)
 #define decl_readdir(name) struct vfs_node* name(const struct vfs_node* dir)
 #define decl_finddir(name) struct vfs_node* name(const char* in)
 
@@ -29,6 +29,8 @@ struct vfs_node{
     decl_write((*write));
     decl_readdir((*readdir));
     decl_finddir((*finddir));
+    decl_read((*driver_read));
+    decl_write((*driver_write));
     struct vfs_node* mountpoint; //mountpoint is null if nothing is mounted
     char name[255];
     unsigned short perms;
@@ -38,6 +40,9 @@ struct vfs_node{
     struct vfs_node* next,*child;
     char type;
 };
+
+struct vfs_node* fd_node_find(int fd);
+
 
 void init_vfs();
 extern struct vfs_node *memroot;

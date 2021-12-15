@@ -7,6 +7,7 @@
 #include "posix/errno.h"
 #include "vgatext.h"
 #include "isr.h"
+#include "fs/vfs.h"
 int dev_it = 0;
 
 int idectrl_id_count = 0;
@@ -87,156 +88,14 @@ void ide_write(struct IDEChannelRegisters *channel, unsigned char reg,
   if (reg > 0x07 && reg < 0x0C)
     ide_write(channel, ATA_REG_CONTROL, channel->nIEN);
 }
-void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
-               unsigned int b3, unsigned int b4,unsigned char irq) {
-  int k, count = 0;
 
-  
-  // 1- Detect I/O Ports which interface IDE Controller:
-  ideit->id = idectrl_id_count++;
-  ideit->base = (b0 & 0xFFFFFFFC) + 0x1F0 * (!b0);
-  ideit->ctrl = (b1 & 0xFFFFFFFC) + 0x3F6 * (!b1);
-  ideit->bmide = (b4 & 0xFFFFFFFC) + 0; // Bus Master IDE
-  ideit->second = khmalloc(sizeof(struct IDEChannelRegisters));
-  ideit->irq=
 
-  ideit->second->base = (b2 & 0xFFFFFFFC) + 0x170 * (!b2);
-  ideit->second->ctrl = (b3 & 0xFFFFFFFC) + 0x376 * (!b3);
-  ideit->second->bmide = (b4 & 0xFFFFFFFC) + 8; // Bus Master IDE
-  ideit->second->id = idectrl_id_count++;
-  // 2- Disable IRQs:
-  ide_write(ideit, ATA_REG_CONTROL, 2);
-  ide_write(ideit->second, ATA_REG_CONTROL, 2);
 
-  for (char i = 0; i < 2; i++)
-    for (char j = 0; j < 2; j++) {
 
-      unsigned char err = 0, type = IDE_ATA, status;
-      (i == 0 ? ideit : ideit->second)->ide_devices[count].Reserved =
-          0; // Assuming that no drive here.
 
-      // (I) Select Drive:
-      ide_write(i == 0 ? ideit : ideit->second, ATA_REG_HDDEVSEL,
-                0xA0 | (j << 4)); // Select Drive.
-      io_wait();
-      io_wait();
-      io_wait();
-      io_wait();
 
-      // Wait 1ms for drive select to work.
 
-      // (II) Send ATA Identify Command:
-      ide_write(i == 0 ? ideit : ideit->second, ATA_REG_COMMAND,
-                ATA_CMD_IDENTIFY);
-      io_wait();
-      io_wait();
-      io_wait();
-      io_wait();
-          io_wait();
-      io_wait();
-      io_wait();
-      io_wait();
 
-      // This function should be implemented in your OS. which waits for 1 ms.
-      // it is based on System Timer Device Driver.
-
-      // (III) Polling:
-      if (ide_read(i == 0 ? ideit : ideit->second, ATA_REG_STATUS) == 0)
-        continue; // If Status = 0, No Device.
-
-      while (1) {
-        status = ide_read(i == 0 ? ideit : ideit->second, ATA_REG_STATUS);
-        if ((status & ATA_SR_ERR)) {
-          err = 1;
-          break;
-        } // If Err, Device is not ATA.
-        if (!(status & ATA_SR_BSY) && (status & ATA_SR_DRQ))
-          break; // Everything is right.
-      }
-
-      // (IV) Probe for ATAPI Devices:
-
-      if (err != 0) {
-        unsigned char cl =
-            ide_read(i == 0 ? ideit : ideit->second, ATA_REG_LBA1);
-        unsigned char ch =
-            ide_read(i == 0 ? ideit : ideit->second, ATA_REG_LBA2);
-
-        if (cl == 0x14 && ch == 0xEB)
-          type = IDE_ATAPI;
-        else if (cl == 0x69 && ch == 0x96)
-          type = IDE_ATAPI;
-        else
-          continue; // Unknown Type (may not be a device).
-
-        ide_write(i == 0 ? ideit : ideit->second, ATA_REG_COMMAND,
-                  ATA_CMD_IDENTIFY_PACKET);
-        io_wait();
-        io_wait();
-        io_wait();
-        io_wait();
-      }
-
-      // (V) Read Identification Space of the Device:
-      ide_read_buffer(i == 0 ? ideit : ideit->second, ATA_REG_DATA,
-                      (unsigned int)ide_buf, 128);
-      // (VI) Read Device Parameters:
-      (i == 0 ? ideit : ideit->second)->ide_devices[count].Reserved = 1;
-      (i == 0 ? ideit : ideit->second)->ide_devices[count].Type = type;
-      (i == 0 ? ideit : ideit->second)->ide_devices[count].Channel =
-          idectrl_id_count + i;
-      (i == 0 ? ideit : ideit->second)->ide_devices[count].Drive = j;
-      (i == 0 ? ideit : ideit->second)->ide_devices[count].Signature =
-          *((unsigned short *)(ide_buf + ATA_IDENT_DEVICETYPE));
-      (i == 0 ? ideit : ideit->second)->ide_devices[count].Capabilities =
-          *((unsigned short *)(ide_buf + ATA_IDENT_CAPABILITIES));
-      (i == 0 ? ideit : ideit->second)->ide_devices[count].CommandSets =
-          *((unsigned int *)(ide_buf + ATA_IDENT_COMMANDSETS));
-
-      // (VII) Get Size:
-      if ((i == 0 ? ideit : ideit->second)->ide_devices[count].CommandSets &
-          (1 << 26))
-        // Device uses 48-Bit Addressing:
-        (i == 0 ? ideit : ideit->second)->ide_devices[count].Size =
-            *((unsigned int *)(ide_buf + ATA_IDENT_MAX_LBA_EXT));
-      else
-        // Device uses CHS or 28-bit Addressing:
-        (i == 0 ? ideit : ideit->second)->ide_devices[count].Size =
-            *((unsigned int *)(ide_buf + ATA_IDENT_MAX_LBA));
-
-      // (VIII) String indicates model of device (like Western Digital HDD and
-      // SONY DVD-RW...):
-      for (k = 0; k < 40; k += 2) {
-        (i == 0 ? ideit : ideit->second)->ide_devices[count].Model[k] =
-            ide_buf[ATA_IDENT_MODEL + k + 1];
-        (i == 0 ? ideit : ideit->second)->ide_devices[count].Model[k + 1] =
-            ide_buf[ATA_IDENT_MODEL + k];
-      }
-      (i == 0 ? ideit : ideit->second)->ide_devices[count].Model[40] =
-          0; // Terminate String.
-
-      count++;
-    }
-
-  // 4- Print Summary:
-  for (int j = 0; j < 2; j++)
-    for (int i = 0; i < 4; i++)
-      if ((j == 0 ? ideit : ideit->second)->ide_devices[i].Reserved == 1) {
-        // printk(" Found %s Drive %dGB - %s\n",(const char *[]){"ATA",
-        // "ATAPI"}[ide_devices[i].Type], ide_devices[i].Size / 1024 / 1024 /
-        // 2,ide_devices[i].Model);
-        struct vfs_node *newfile = devfs_int_creat();
-        (j == 0 ? ideit : ideit->second)->ide_devices[i].devfs_inode =
-            newfile->inode;
-        putstring("dev model: ");
-        putstring((j == 0 ? ideit : ideit->second)->ide_devices[i].Model);
-        putstring(" devfs inode ");
-        putunum((j == 0 ? ideit : ideit->second)->ide_devices[i].devfs_inode,
-                10);
-        putstring("\n");
-        ++dev_it;
-      }
-}
 unsigned char ide_polling(struct IDEChannelRegisters *channel,
                           unsigned int advanced_check) {
 
@@ -299,7 +158,7 @@ unsigned char ide_ata_access(unsigned char direction, unsigned char drive_inode,
 
     return ENODEV;
   }
-breakout:
+breakout:;
   unsigned char lba_mode /* 0: CHS, 1:LBA28, 2: LBA48 */,
       dma /* 0: No DMA, 1: DMA */, cmd;
   unsigned char lba_io[6];
@@ -611,7 +470,172 @@ breakout:
   return err;
 }
 
-char testbuf[1024];
+decl_read(ide_devfs_read){
+    int inode=fd_node_find(fd)->inode;
+    
+    return  ide_read_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
+
+    
+}   
+
+decl_write(ide_devfs_write){
+    int inode=fd_node_find(fd)->inode;
+
+    return  ide_write_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
+
+
+}
+
+
+void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
+               unsigned int b3, unsigned int b4) {
+  int k, count = 0;
+
+  
+  // 1- Detect I/O Ports which interface IDE Controller:
+  ideit->id = idectrl_id_count++;
+  ideit->base = (b0 & 0xFFFFFFFC) + 0x1F0 * (!b0);
+  ideit->ctrl = (b1 & 0xFFFFFFFC) + 0x3F6 * (!b1);
+  ideit->bmide = (b4 & 0xFFFFFFFC) + 0; // Bus Master IDE
+  ideit->second = khmalloc(sizeof(struct IDEChannelRegisters));
+
+  ideit->second->base = (b2 & 0xFFFFFFFC) + 0x170 * (!b2);
+  ideit->second->ctrl = (b3 & 0xFFFFFFFC) + 0x376 * (!b3);
+  ideit->second->bmide = (b4 & 0xFFFFFFFC) + 8; // Bus Master IDE
+  ideit->second->id = idectrl_id_count++;
+  // 2- Disable IRQs:
+  ide_write(ideit, ATA_REG_CONTROL, 2);
+  ide_write(ideit->second, ATA_REG_CONTROL, 2);
+
+  for (char i = 0; i < 2; i++)
+    for (char j = 0; j < 2; j++) {
+
+      unsigned char err = 0, type = IDE_ATA, status;
+      (i == 0 ? ideit : ideit->second)->ide_devices[count].Reserved =
+          0; // Assuming that no drive here.
+
+      // (I) Select Drive:
+      ide_write(i == 0 ? ideit : ideit->second, ATA_REG_HDDEVSEL,
+                0xA0 | (j << 4)); // Select Drive.
+      io_wait();
+      io_wait();
+      io_wait();
+      io_wait();
+
+      // Wait 1ms for drive select to work.
+
+      // (II) Send ATA Identify Command:
+      ide_write(i == 0 ? ideit : ideit->second, ATA_REG_COMMAND,
+                ATA_CMD_IDENTIFY);
+      io_wait();
+      io_wait();
+      io_wait();
+      io_wait();
+          io_wait();
+      io_wait();
+      io_wait();
+      io_wait();
+
+      // This function should be implemented in your OS. which waits for 1 ms.
+      // it is based on System Timer Device Driver.
+
+      // (III) Polling:
+      if (ide_read(i == 0 ? ideit : ideit->second, ATA_REG_STATUS) == 0)
+        continue; // If Status = 0, No Device.
+
+      while (1) {
+        status = ide_read(i == 0 ? ideit : ideit->second, ATA_REG_STATUS);
+        if ((status & ATA_SR_ERR)) {
+          err = 1;
+          break;
+        } // If Err, Device is not ATA.
+        if (!(status & ATA_SR_BSY) && (status & ATA_SR_DRQ))
+          break; // Everything is right.
+      }
+
+      // (IV) Probe for ATAPI Devices:
+
+      if (err != 0) {
+        unsigned char cl =
+            ide_read(i == 0 ? ideit : ideit->second, ATA_REG_LBA1);
+        unsigned char ch =
+            ide_read(i == 0 ? ideit : ideit->second, ATA_REG_LBA2);
+
+        if (cl == 0x14 && ch == 0xEB)
+          type = IDE_ATAPI;
+        else if (cl == 0x69 && ch == 0x96)
+          type = IDE_ATAPI;
+        else
+          continue; // Unknown Type (may not be a device).
+
+        ide_write(i == 0 ? ideit : ideit->second, ATA_REG_COMMAND,
+                  ATA_CMD_IDENTIFY_PACKET);
+        io_wait();
+        io_wait();
+        io_wait();
+        io_wait();
+      }
+
+      // (V) Read Identification Space of the Device:
+      ide_read_buffer(i == 0 ? ideit : ideit->second, ATA_REG_DATA,
+                      (unsigned int)ide_buf, 128);
+      // (VI) Read Device Parameters:
+      (i == 0 ? ideit : ideit->second)->ide_devices[count].Reserved = 1;
+      (i == 0 ? ideit : ideit->second)->ide_devices[count].Type = type;
+      (i == 0 ? ideit : ideit->second)->ide_devices[count].Channel =
+          idectrl_id_count + i;
+      (i == 0 ? ideit : ideit->second)->ide_devices[count].Drive = j;
+      (i == 0 ? ideit : ideit->second)->ide_devices[count].Signature =
+          *((unsigned short *)(ide_buf + ATA_IDENT_DEVICETYPE));
+      (i == 0 ? ideit : ideit->second)->ide_devices[count].Capabilities =
+          *((unsigned short *)(ide_buf + ATA_IDENT_CAPABILITIES));
+      (i == 0 ? ideit : ideit->second)->ide_devices[count].CommandSets =
+          *((unsigned int *)(ide_buf + ATA_IDENT_COMMANDSETS));
+
+      // (VII) Get Size:
+      if ((i == 0 ? ideit : ideit->second)->ide_devices[count].CommandSets &
+          (1 << 26))
+        // Device uses 48-Bit Addressing:
+        (i == 0 ? ideit : ideit->second)->ide_devices[count].Size =
+            *((unsigned int *)(ide_buf + ATA_IDENT_MAX_LBA_EXT));
+      else
+        // Device uses CHS or 28-bit Addressing:
+        (i == 0 ? ideit : ideit->second)->ide_devices[count].Size =
+            *((unsigned int *)(ide_buf + ATA_IDENT_MAX_LBA));
+
+      // (VIII) String indicates model of device (like Western Digital HDD and
+      // SONY DVD-RW...):
+      for (k = 0; k < 40; k += 2) {
+        (i == 0 ? ideit : ideit->second)->ide_devices[count].Model[k] =
+            ide_buf[ATA_IDENT_MODEL + k + 1];
+        (i == 0 ? ideit : ideit->second)->ide_devices[count].Model[k + 1] =
+            ide_buf[ATA_IDENT_MODEL + k];
+      }
+      (i == 0 ? ideit : ideit->second)->ide_devices[count].Model[40] =
+          0; // Terminate String.
+
+      count++;
+    }
+
+  // 4- Print Summary:
+  for (int j = 0; j < 2; j++)
+    for (int i = 0; i < 4; i++)
+      if ((j == 0 ? ideit : ideit->second)->ide_devices[i].Reserved == 1) {
+        // printk(" Found %s Drive %dGB - %s\n",(const char *[]){"ATA",
+        // "ATAPI"}[ide_devices[i].Type], ide_devices[i].Size / 1024 / 1024 /
+        // 2,ide_devices[i].Model);
+        struct vfs_node *newfile = devfs_int_creat(ide_devfs_read,ide_devfs_write);
+        (j == 0 ? ideit : ideit->second)->ide_devices[i].devfs_inode =
+            newfile->inode;
+        putstring("dev model: ");
+        putstring((j == 0 ? ideit : ideit->second)->ide_devices[i].Model);
+        putstring(" devfs inode ");
+        putunum((j == 0 ? ideit : ideit->second)->ide_devices[i].devfs_inode,
+                10);
+        putstring("\n");
+        ++dev_it;
+      }
+}
 
 void init_ide() {
   putstring("init_ide()...");
@@ -640,7 +664,7 @@ void init_ide() {
                                readconfword(it->bus, it->dev, it->func, 0x1c)),
                 (unsigned int)((readconfword(it->bus, it->dev, it->func, 0x22)
                                 << 16) |
-                               readconfword(it->bus, it->dev, it->func, 0x20)),14);
+                               readconfword(it->bus, it->dev, it->func, 0x20)));
     }
     it = it->next;
   }

@@ -1,27 +1,40 @@
 #include "fs/devfs.h"
 #include "heap.h"
 #include "posix/errno.h"
+#include "fs/vfs.h"
+#include "multitask.h"
 
 unsigned int inodecounter=0;
+
 
 struct vfs_node* devfs_root;
 
 decl_open(devfs_open){
-    
+    flags=flags+1;
+    int i;
+    for(i=0;i<1024;++i){
+        if(current_task->fds[i]==0){
+            break;
+        }
+    }
+    current_task->fds[i]=in;
+    return i;
 }
 decl_close(devfs_close){
-    
+    current_task->fds[fd]=0;
+    return 0;
 }
 decl_readdir(devfs_readdir){
     
 }
 
 decl_read(devfs_read){
-    
+    return current_task->fds[fd]->driver_read(fd,buf,count,off);
 }
 
 decl_write(devfs_write){
-    
+    return current_task->fds[fd]->driver_write(fd,buf,count,off);
+
 }
 
 decl_finddir(devfs_finddir){
@@ -50,7 +63,7 @@ struct vfs_node{
 #define decl_write(name) unsigned long name(int fd,void* buf,unsigned long count)
 #define decl_finddir(name) struct vfs_node* name(struct vfs_node* dir,char* n)
 */
-struct vfs_node* devfs_int_creat(){
+struct vfs_node* devfs_int_creat(decl_read((*driver_read)),decl_write((*driver_write))){
     struct vfs_node* it=devfs_root;
     if(it->child){
         it=it->child;
@@ -73,6 +86,8 @@ struct vfs_node* devfs_int_creat(){
     it->write=devfs_write;
     it->readdir=devfs_readdir;
     it->finddir=devfs_finddir;
+    it->driver_read=driver_read;
+    it->driver_write=driver_write;
     it->perms=0644;
     it->uid=0;
     it->gid=0;

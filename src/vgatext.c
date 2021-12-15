@@ -490,15 +490,11 @@ void putstring_xy(const char *s,unsigned int x,unsigned int y,unsigned int fc) {
 
   } while ((*++s) != 0);
   cursorpos[1]=y;
+  buf_curpos[y]=x;
   buf_flush();
 
 }
-int strlen(char *s) {
-  int i;
-  for (i = 0; s[i]; ++i)
-    ;
-  return i;
-}
+
 void reverse(char s[]) {
   int i, j;
   char c;

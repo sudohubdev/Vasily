@@ -197,6 +197,8 @@ pit_isr:
 .extern putunum
 .extern keyboard_handler
 okmsg: .string "\n\0"
+error_str: .string "a fatal kernel exception has occured\0"
+
 key_isr:
     pushal
     movb $0x20,%al
@@ -257,6 +259,7 @@ error_5:
     
     popal
     iretl
+
     
 error_6:
     pushl %ebx
@@ -272,6 +275,7 @@ error_6:
     pushl 44(%esp)
     pushl $0
     pushl err_eip
+    pushl $error_str
     call exception_handler
     cli
     hlt

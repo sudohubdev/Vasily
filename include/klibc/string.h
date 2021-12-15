@@ -20,3 +20,4 @@
 void * memset ( void * ptr, int value, unsigned int num );
 void * memcpy ( void * destination, const void * source, unsigned int num);
 char * strcpy ( char * destination, const char * source );
+unsigned int strlen(const char* str);

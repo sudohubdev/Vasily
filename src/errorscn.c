@@ -1,4 +1,5 @@
 #include "vgatext.h"
+#include "klibc/string.h"
 
 unsigned char _home_clement_Documents_crash_tga[] = {
   0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x00,
@@ -340,8 +341,8 @@ unsigned char _home_clement_Documents_crash_tga[] = {
 
 extern unsigned int err_code;
 
-void exception_handler(unsigned int eip,unsigned int code2,unsigned int flags,unsigned int cs,unsigned int edi,unsigned int esi,unsigned int ebp,unsigned int esp,unsigned int ebx,unsigned int edx,unsigned int ecx,unsigned int eax){
-    putstring_xy("a fatal exception has occurred in the kernel",gres[0]/2-((sizeof("a fatal exception has occurred in the kernel")-1)/2*8),gres[1]/2,0xc);
+void exception_handler(char* msg,unsigned int eip,unsigned int code2,unsigned int flags,unsigned int cs,unsigned int edi,unsigned int esi,unsigned int ebp,unsigned int esp,unsigned int ebx,unsigned int edx,unsigned int ecx,unsigned int eax){
+    putstring_xy(msg,gres[0]/2-((strlen(msg)-1)/2*8),gres[1]/2,0xc);
     putstring_xy("exception code:      ",gres[0]/2-((sizeof("exception code:       ")-1)*8),gres[1]/2+32,0xc);
     putunum_xy(err_code,10,0,gres[1]/2+32,0xc);
     putstring_xy("exception error code:",gres[0]/2-((sizeof("exception error code: ")-1)*8),gres[1]/2+48,0xc);

@@ -9,11 +9,11 @@ void keyboard_handler(unsigned int scancode){
          if(scancode==0x48){
              enable_log=!enable_log;
              if(enable_log==1){
-                memset(globl_info.framebuffer_addr,0,gres[0]*gres[1]*(globl_info.framebuffer_bpp/8));
+                memset((void*)globl_info.framebuffer_addr,0,gres[0]*gres[1]*(globl_info.framebuffer_bpp/8));
                 buf_flush();
              }
              else{
-                memset(globl_info.framebuffer_addr,0,gres[0]*gres[1]*(globl_info.framebuffer_bpp/8));
+                memset((void*)globl_info.framebuffer_addr,0,gres[0]*gres[1]*(globl_info.framebuffer_bpp/8));
                 if(globl_info.framebuffer_type!=2){
                     for(int x=0;x<124;++x)
                         for(int y=0;y<128;++y){
