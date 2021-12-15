@@ -14,7 +14,7 @@ Linker script and memory map
                 0x0000000000040000                . = 0x40000
                 0x0000000000040000                __krnl_start = .
 
-.text           0x0000000000040000     0x5eb1
+.text           0x0000000000040000     0x5fa1
  *(.multiboot)
  .multiboot     0x0000000000040000       0x30 asm/x86-32/header.o
  *(.text)
@@ -125,7 +125,7 @@ Linker script and memory map
                 0x0000000000042c60                putstring
                 0x0000000000042d30                putunum
                 0x0000000000042e80                init_vga
- .text          0x0000000000043030     0x23bf src/dev/ide.o
+ .text          0x0000000000043030     0x24af src/dev/ide.o
                 0x0000000000043030                ide_atapi_wait
                 0x0000000000043070                getchannel
                 0x00000000000430c0                ide_write
@@ -140,187 +140,188 @@ Linker script and memory map
                 0x00000000000445d0                ide_write_sectors
                 0x0000000000044800                ide_devfs_write
                 0x0000000000044840                ctrl_init
-                0x00000000000451d0                init_ide
- *fill*         0x00000000000453ef        0x1 
- .text          0x00000000000453f0      0x10b src/dev/keyboard.o
-                0x00000000000453f0                keyboard_handler
- *fill*         0x00000000000454fb        0x5 
- .text          0x0000000000045500      0x57b src/dev/pci.o
-                0x0000000000045500                readconfword
-                0x0000000000045560                chkdev
-                0x0000000000045640                chkfunc
-                0x00000000000457e0                chkbus
-                0x0000000000045810                init_pci
- *fill*         0x0000000000045a7b        0x5 
- .text          0x0000000000045a80       0xf9 src/dev/pic.o
-                0x0000000000045a80                init_pic
- .text          0x0000000000045b79        0x0 src/dev/sata.o
- *fill*         0x0000000000045b79        0x7 
- .text          0x0000000000045b80      0x21c src/fs/devfs.o
-                0x0000000000045b80                devfs_open
-                0x0000000000045bb0                devfs_close
-                0x0000000000045bd0                devfs_readdir
-                0x0000000000045be0                devfs_read
-                0x0000000000045c00                devfs_write
-                0x0000000000045c20                devfs_finddir
-                0x0000000000045c30                devfs_int_creat
-                0x0000000000045d30                devfs_init
- *fill*         0x0000000000045d9c        0x4 
- .text          0x0000000000045da0      0x111 src/fs/vfs.o
-                0x0000000000045da0                open
-                0x0000000000045db0                close
-                0x0000000000045dc0                read
-                0x0000000000045dd0                readdir
-                0x0000000000045de0                finddir
-                0x0000000000045df0                write
-                0x0000000000045e00                init_vfs
-                0x0000000000045ea0                fd_node_find
+                0x00000000000452c0                init_ide
+ *fill*         0x00000000000454df        0x1 
+ .text          0x00000000000454e0      0x10b src/dev/keyboard.o
+                0x00000000000454e0                keyboard_handler
+ *fill*         0x00000000000455eb        0x5 
+ .text          0x00000000000455f0      0x57b src/dev/pci.o
+                0x00000000000455f0                readconfword
+                0x0000000000045650                chkdev
+                0x0000000000045730                chkfunc
+                0x00000000000458d0                chkbus
+                0x0000000000045900                init_pci
+ *fill*         0x0000000000045b6b        0x5 
+ .text          0x0000000000045b70       0xf9 src/dev/pic.o
+                0x0000000000045b70                init_pic
+ .text          0x0000000000045c69        0x0 src/dev/sata.o
+ *fill*         0x0000000000045c69        0x7 
+ .text          0x0000000000045c70      0x21c src/fs/devfs.o
+                0x0000000000045c70                devfs_open
+                0x0000000000045ca0                devfs_close
+                0x0000000000045cc0                devfs_readdir
+                0x0000000000045cd0                devfs_read
+                0x0000000000045cf0                devfs_write
+                0x0000000000045d10                devfs_finddir
+                0x0000000000045d20                devfs_int_creat
+                0x0000000000045e20                devfs_init
+ *fill*         0x0000000000045e8c        0x4 
+ .text          0x0000000000045e90      0x111 src/fs/vfs.o
+                0x0000000000045e90                open
+                0x0000000000045ea0                close
+                0x0000000000045eb0                read
+                0x0000000000045ec0                readdir
+                0x0000000000045ed0                finddir
+                0x0000000000045ee0                write
+                0x0000000000045ef0                init_vfs
+                0x0000000000045f90                fd_node_find
 
-.iplt           0x0000000000045eb1        0x0
- .iplt          0x0000000000045eb1        0x0 asm/x86-32/boot.o
+.iplt           0x0000000000045fa1        0x0
+ .iplt          0x0000000000045fa1        0x0 asm/x86-32/boot.o
 
-.text.unlikely  0x0000000000045eb1       0xa9
+.text.unlikely  0x0000000000045fa1       0xa9
  .text.unlikely
-                0x0000000000045eb1       0xa9 src/dev/ide.o
+                0x0000000000045fa1       0xa9 src/dev/ide.o
 
-.data           0x0000000000046000     0x30fa
+.data           0x0000000000047000     0x30fa
  *(.data)
- .data          0x0000000000046000       0x4c asm/x86-32/boot.o
-                0x0000000000046000                gdt_info
- .data          0x000000000004604c        0x0 asm/x86-32/header.o
- .data          0x000000000004604c        0x0 asm/x86-32/isr.o
- .data          0x000000000004604c        0x0 asm/x86-32/string.o
- .data          0x000000000004604c        0x8 src/common.o
-                0x000000000004604c                donemsg
-                0x0000000000046050                donemsg_str
- *fill*         0x0000000000046054        0xc 
- .data          0x0000000000046060      0xfac src/errorscn.o
-                0x0000000000046060                _home_clement_Documents_crash_tga
- .data          0x000000000004700c        0x0 src/heap.o
- .data          0x000000000004700c        0x0 src/idt.o
- .data          0x000000000004700c        0x0 src/init.o
- .data          0x000000000004700c        0x0 src/io.o
- .data          0x000000000004700c        0x0 src/krnl_main.o
- .data          0x000000000004700c        0x0 src/mem.o
- *fill*         0x000000000004700c       0x14 
- .data          0x0000000000047020       0x88 src/multitask.o
-                0x0000000000047020                kernel_task_name
-                0x0000000000047040                sys_tss_table
- .data          0x00000000000470a8        0x0 src/panic.o
- .data          0x00000000000470a8        0x0 src/string.o
- .data          0x00000000000470a8        0x0 src/syscall.o
- *fill*         0x00000000000470a8       0x18 
- .data          0x00000000000470c0     0x2020 src/vgatext.o
-                0x00000000000470c0                default_colour
-                0x00000000000470c4                enable_log
-                0x00000000000470c8                istext
-                0x00000000000470cc                gres
-                0x00000000000470d4                tres
-                0x00000000000470e0                textmode_lookup
-                0x0000000000047120                booticon_tga
-                0x00000000000480e0                vga_font
- .data          0x00000000000490e0        0xc src/dev/ide.o
- .data          0x00000000000490ec        0x0 src/dev/keyboard.o
- .data          0x00000000000490ec        0x0 src/dev/pci.o
- .data          0x00000000000490ec        0xe src/dev/pic.o
-                0x00000000000490ec                p
- .data          0x00000000000490fa        0x0 src/dev/sata.o
- .data          0x00000000000490fa        0x0 src/fs/devfs.o
- .data          0x00000000000490fa        0x0 src/fs/vfs.o
+ .data          0x0000000000047000       0x4c asm/x86-32/boot.o
+                0x0000000000047000                gdt_info
+ .data          0x000000000004704c        0x0 asm/x86-32/header.o
+ .data          0x000000000004704c        0x0 asm/x86-32/isr.o
+ .data          0x000000000004704c        0x0 asm/x86-32/string.o
+ .data          0x000000000004704c        0x8 src/common.o
+                0x000000000004704c                donemsg
+                0x0000000000047050                donemsg_str
+ *fill*         0x0000000000047054        0xc 
+ .data          0x0000000000047060      0xfac src/errorscn.o
+                0x0000000000047060                _home_clement_Documents_crash_tga
+ .data          0x000000000004800c        0x0 src/heap.o
+ .data          0x000000000004800c        0x0 src/idt.o
+ .data          0x000000000004800c        0x0 src/init.o
+ .data          0x000000000004800c        0x0 src/io.o
+ .data          0x000000000004800c        0x0 src/krnl_main.o
+ .data          0x000000000004800c        0x0 src/mem.o
+ *fill*         0x000000000004800c       0x14 
+ .data          0x0000000000048020       0x88 src/multitask.o
+                0x0000000000048020                kernel_task_name
+                0x0000000000048040                sys_tss_table
+ .data          0x00000000000480a8        0x0 src/panic.o
+ .data          0x00000000000480a8        0x0 src/string.o
+ .data          0x00000000000480a8        0x0 src/syscall.o
+ *fill*         0x00000000000480a8       0x18 
+ .data          0x00000000000480c0     0x2020 src/vgatext.o
+                0x00000000000480c0                default_colour
+                0x00000000000480c4                enable_log
+                0x00000000000480c8                istext
+                0x00000000000480cc                gres
+                0x00000000000480d4                tres
+                0x00000000000480e0                textmode_lookup
+                0x0000000000048120                booticon_tga
+                0x00000000000490e0                vga_font
+ .data          0x000000000004a0e0        0xc src/dev/ide.o
+ .data          0x000000000004a0ec        0x0 src/dev/keyboard.o
+ .data          0x000000000004a0ec        0x0 src/dev/pci.o
+ .data          0x000000000004a0ec        0xe src/dev/pic.o
+                0x000000000004a0ec                p
+ .data          0x000000000004a0fa        0x0 src/dev/sata.o
+ .data          0x000000000004a0fa        0x0 src/fs/devfs.o
+ .data          0x000000000004a0fa        0x0 src/fs/vfs.o
 
-.got            0x00000000000490fc        0x0
- .got           0x00000000000490fc        0x0 asm/x86-32/boot.o
+.got            0x000000000004a0fc        0x0
+ .got           0x000000000004a0fc        0x0 asm/x86-32/boot.o
 
-.got.plt        0x00000000000490fc        0x0
- .got.plt       0x00000000000490fc        0x0 asm/x86-32/boot.o
+.got.plt        0x000000000004a0fc        0x0
+ .got.plt       0x000000000004a0fc        0x0 asm/x86-32/boot.o
 
-.igot.plt       0x00000000000490fc        0x0
- .igot.plt      0x00000000000490fc        0x0 asm/x86-32/boot.o
+.igot.plt       0x000000000004a0fc        0x0
+ .igot.plt      0x000000000004a0fc        0x0 asm/x86-32/boot.o
 
-.bss            0x000000000004a000      0xf28
+.bss            0x000000000004b000      0xf28
  *(COMMON)
- COMMON         0x000000000004a000      0x1fc asm/x86-32/boot.o
-                0x000000000004a000                data
+ COMMON         0x000000000004b000      0x1fc asm/x86-32/boot.o
+                0x000000000004b000                data
  *(.bss)
- .bss           0x000000000004a1fc        0x0 asm/x86-32/boot.o
- .bss           0x000000000004a1fc        0x0 asm/x86-32/header.o
- .bss           0x000000000004a1fc        0x0 asm/x86-32/isr.o
- .bss           0x000000000004a1fc        0x0 asm/x86-32/string.o
- .bss           0x000000000004a1fc        0x0 src/common.o
- .bss           0x000000000004a1fc        0x0 src/errorscn.o
- .bss           0x000000000004a1fc        0x4 src/heap.o
-                0x000000000004a1fc                system_heap
- .bss           0x000000000004a200      0x40e src/idt.o
-                0x000000000004a200                krnl_idt
-                0x000000000004a608                idtinf
- .bss           0x000000000004a60e        0x0 src/init.o
- .bss           0x000000000004a60e        0x0 src/io.o
- *fill*         0x000000000004a60e       0x12 
- .bss           0x000000000004a620       0x78 src/krnl_main.o
-                0x000000000004a620                globl_info
- .bss           0x000000000004a698       0x10 src/mem.o
-                0x000000000004a698                realloc_test
-                0x000000000004a69c                krnl_pagedir
-                0x000000000004a6a0                kernel_page_usage_bitmap
-                0x000000000004a6a4                max_index
- .bss           0x000000000004a6a8       0x14 src/multitask.o
-                0x000000000004a6a8                proc_id_counter
-                0x000000000004a6b0                current_task
-                0x000000000004a6b4                kernel_task
-                0x000000000004a6b8                enable_multitask
- .bss           0x000000000004a6bc        0x0 src/panic.o
- .bss           0x000000000004a6bc        0x0 src/string.o
- .bss           0x000000000004a6bc        0x0 src/syscall.o
- .bss           0x000000000004a6bc       0x18 src/vgatext.o
-                0x000000000004a6bc                prevcursorpos
-                0x000000000004a6c4                cursorpos
-                0x000000000004a6cc                buf_curpos
-                0x000000000004a6d0                buf_ptr
- *fill*         0x000000000004a6d4        0xc 
- .bss           0x000000000004a6e0      0x830 src/dev/ide.o
-                0x000000000004a6e0                ide_irq_invoked
-                0x000000000004a700                ide_buf
-                0x000000000004af00                ideit
-                0x000000000004af04                idechannelroot
-                0x000000000004af08                idectrl_id_count
-                0x000000000004af0c                dev_it
- .bss           0x000000000004af10        0x4 src/dev/keyboard.o
-                0x000000000004af10                e0_mode
- .bss           0x000000000004af14        0x8 src/dev/pci.o
-                0x000000000004af14                it
-                0x000000000004af18                pciroot
- .bss           0x000000000004af1c        0x0 src/dev/pic.o
- .bss           0x000000000004af1c        0x0 src/dev/sata.o
- .bss           0x000000000004af1c        0x8 src/fs/devfs.o
-                0x000000000004af1c                devfs_root
-                0x000000000004af20                inodecounter
- .bss           0x000000000004af24        0x4 src/fs/vfs.o
-                0x000000000004af24                memroot
+ .bss           0x000000000004b1fc        0x0 asm/x86-32/boot.o
+ .bss           0x000000000004b1fc        0x0 asm/x86-32/header.o
+ .bss           0x000000000004b1fc        0x0 asm/x86-32/isr.o
+ .bss           0x000000000004b1fc        0x0 asm/x86-32/string.o
+ .bss           0x000000000004b1fc        0x0 src/common.o
+ .bss           0x000000000004b1fc        0x0 src/errorscn.o
+ .bss           0x000000000004b1fc        0x4 src/heap.o
+                0x000000000004b1fc                system_heap
+ .bss           0x000000000004b200      0x40e src/idt.o
+                0x000000000004b200                krnl_idt
+                0x000000000004b608                idtinf
+ .bss           0x000000000004b60e        0x0 src/init.o
+ .bss           0x000000000004b60e        0x0 src/io.o
+ *fill*         0x000000000004b60e       0x12 
+ .bss           0x000000000004b620       0x78 src/krnl_main.o
+                0x000000000004b620                globl_info
+ .bss           0x000000000004b698       0x10 src/mem.o
+                0x000000000004b698                realloc_test
+                0x000000000004b69c                krnl_pagedir
+                0x000000000004b6a0                kernel_page_usage_bitmap
+                0x000000000004b6a4                max_index
+ .bss           0x000000000004b6a8       0x14 src/multitask.o
+                0x000000000004b6a8                proc_id_counter
+                0x000000000004b6b0                current_task
+                0x000000000004b6b4                kernel_task
+                0x000000000004b6b8                enable_multitask
+ .bss           0x000000000004b6bc        0x0 src/panic.o
+ .bss           0x000000000004b6bc        0x0 src/string.o
+ .bss           0x000000000004b6bc        0x0 src/syscall.o
+ .bss           0x000000000004b6bc       0x18 src/vgatext.o
+                0x000000000004b6bc                prevcursorpos
+                0x000000000004b6c4                cursorpos
+                0x000000000004b6cc                buf_curpos
+                0x000000000004b6d0                buf_ptr
+ *fill*         0x000000000004b6d4        0xc 
+ .bss           0x000000000004b6e0      0x830 src/dev/ide.o
+                0x000000000004b6e0                drive_counter
+                0x000000000004b6e4                ide_irq_invoked
+                0x000000000004b700                ide_buf
+                0x000000000004bf00                ideit
+                0x000000000004bf04                idechannelroot
+                0x000000000004bf08                idectrl_id_count
+                0x000000000004bf0c                dev_it
+ .bss           0x000000000004bf10        0x4 src/dev/keyboard.o
+                0x000000000004bf10                e0_mode
+ .bss           0x000000000004bf14        0x8 src/dev/pci.o
+                0x000000000004bf14                it
+                0x000000000004bf18                pciroot
+ .bss           0x000000000004bf1c        0x0 src/dev/pic.o
+ .bss           0x000000000004bf1c        0x0 src/dev/sata.o
+ .bss           0x000000000004bf1c        0x8 src/fs/devfs.o
+                0x000000000004bf1c                devfs_root
+                0x000000000004bf20                inodecounter
+ .bss           0x000000000004bf24        0x4 src/fs/vfs.o
+                0x000000000004bf24                memroot
 
-.rodata         0x000000000004b000       0x67
+.rodata         0x000000000004c000       0x67
  *(.rodata)
- .rodata        0x000000000004b000       0x12 src/vgatext.o
- .rodata        0x000000000004b012       0x55 src/dev/ide.o
+ .rodata        0x000000000004c000       0x12 src/vgatext.o
+ .rodata        0x000000000004c012       0x55 src/dev/ide.o
 
-.rodata.str1.1  0x000000000004b067      0x143
+.rodata.str1.1  0x000000000004c067      0x143
  .rodata.str1.1
-                0x000000000004b067       0x32 src/errorscn.o
+                0x000000000004c067       0x32 src/errorscn.o
  .rodata.str1.1
-                0x000000000004b099       0x36 src/heap.o
+                0x000000000004c099       0x36 src/heap.o
  .rodata.str1.1
-                0x000000000004b0cf        0xe src/idt.o
+                0x000000000004c0cf        0xe src/idt.o
  .rodata.str1.1
-                0x000000000004b0dd       0x23 src/krnl_main.o
+                0x000000000004c0dd       0x23 src/krnl_main.o
  .rodata.str1.1
-                0x000000000004b100       0x1d src/mem.o
+                0x000000000004c100       0x1d src/mem.o
  .rodata.str1.1
-                0x000000000004b11d       0x14 src/multitask.o
+                0x000000000004c11d       0x14 src/multitask.o
  .rodata.str1.1
-                0x000000000004b131       0x65 src/dev/pci.o
+                0x000000000004c131       0x65 src/dev/pci.o
                                          0x69 (size before relaxing)
  .rodata.str1.1
-                0x000000000004b196       0x14 src/fs/vfs.o
-                0x000000000004c1aa                . = (. + 0x1000)
+                0x000000000004c196       0x14 src/fs/vfs.o
+                0x000000000004d1aa                . = (. + 0x1000)
                 0x0000000000050000                __krnl_end = ALIGN (0x4000)
 LOAD asm/x86-32/boot.o
 LOAD asm/x86-32/header.o
@@ -349,10 +350,10 @@ LOAD src/fs/devfs.o
 LOAD src/fs/vfs.o
 OUTPUT(vmvasily elf32-i386)
 
-.rel.dyn        0x000000000004c1ac        0x0
- .rel.got       0x000000000004c1ac        0x0 asm/x86-32/boot.o
- .rel.iplt      0x000000000004c1ac        0x0 asm/x86-32/boot.o
- .rel.text      0x000000000004c1ac        0x0 asm/x86-32/boot.o
+.rel.dyn        0x000000000004d1ac        0x0
+ .rel.got       0x000000000004d1ac        0x0 asm/x86-32/boot.o
+ .rel.iplt      0x000000000004d1ac        0x0 asm/x86-32/boot.o
+ .rel.text      0x000000000004d1ac        0x0 asm/x86-32/boot.o
 
 bss             0x0000000000000000     0x8004
  bss            0x0000000000000000     0x8004 asm/x86-32/boot.o

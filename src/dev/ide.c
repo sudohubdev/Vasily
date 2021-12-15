@@ -486,6 +486,7 @@ decl_write(ide_devfs_write){
 
 }
 
+int drive_counter=0;
 
 void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
                unsigned int b3, unsigned int b4) {
@@ -627,6 +628,9 @@ void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
         struct vfs_node *newfile = devfs_int_creat(ide_devfs_read,ide_devfs_write);
         (j == 0 ? ideit : ideit->second)->ide_devices[i].devfs_inode =
             newfile->inode;
+        newfile->name[0]='p';
+        newfile->name[1]='d';
+        newfile->name[2]='0'+(++drive_counter);
         putstring("dev model: ");
         putstring((j == 0 ? ideit : ideit->second)->ide_devices[i].Model);
         putstring(" devfs inode ");
