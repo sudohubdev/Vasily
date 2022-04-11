@@ -5,6 +5,7 @@
 #include "panic.h"
 #include "vgatext.h"
 #include <multiboot.h>
+#define page_top 0x800000
 #define INDEX_FROM_BIT(a) (a / (8 * 4))
 #define OFFSET_FROM_BIT(a) (a % (8 * 4))
 unsigned int max_index;
@@ -52,6 +53,24 @@ void krnl_map_page(pagedir_t *p, unsigned int physaddr, unsigned int virtaddr) {
   page->r = 1;
   page->u = 0;
 }
+void krnl_map_page_uncacheable(pagedir_t *p, unsigned int physaddr, unsigned int virtaddr) {
+  if (p[virtaddr / 0x400000].raw == 0) {
+    p[virtaddr / 0x400000].raw =
+        (unsigned int)khamalloc(sizeof(page_t) * (0x400000 / 0x1000));
+  }
+  p[virtaddr / 0x400000].s = 0;
+  p[virtaddr / 0x400000].u = 0;
+  p[virtaddr / 0x400000].r = 1;
+  p[virtaddr / 0x400000].p = 1;
+
+  page_t *page = &((page_t *)(p[virtaddr / 0x400000].page_table_addr
+                              << 12))[virtaddr % 0x400000 / 0x1000];
+  page->raw = physaddr & 0xfffff000;
+  page->p = 1;
+  page->r = 1;
+  page->u = 0;
+  page->c = 0;
+}
  void flush_page_table(pagedir_t* p);
 //  asm volatile("movl krnl_pagedir,%%eax;movl %%eax,%%cr3;movl %%cr0,%%eax;orl
 //  $0x80000000,%%eax;xchgw %%bx,%%bx ;movl %%eax,%%cr0;cli;hlt"::"r"(p):"eax");
@@ -74,12 +93,12 @@ void init_paging() {
 
   krnl_pagedir = khamalloc(sizeof(pagedir_t) * 1024);
   krnl_pagedir[0].raw =
-      (unsigned int)khamalloc(sizeof(page_t) * (0x400000 / 0x1000));
+      (unsigned int)khamalloc(sizeof(page_t) * (page_top / 0x1000));
   krnl_pagedir[0].s = 0;
   krnl_pagedir[0].u = 0;
   krnl_pagedir[0].r = 1;
   krnl_pagedir[0].p = 1;
-  for (unsigned int i = 0; i <= 0x200000; i += 0x1000)
+  for (unsigned int i = 0; i <= page_top; i += 0x1000)
     krnl_map_page(krnl_pagedir, i, i);
   for (unsigned int i = 0; i < (globl_info.framebuffer_height * (1 + globl_info.framebuffer_width) * (globl_info.framebuffer_bpp / 8) / 0x2000)*2;++i){
       krnl_map_page(krnl_pagedir, globl_info.framebuffer_addr + i * 0x1000,globl_info.framebuffer_addr + i * 0x1000);

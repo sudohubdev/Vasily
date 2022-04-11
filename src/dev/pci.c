@@ -28,6 +28,25 @@ unsigned short readconfword(unsigned char bus, unsigned char dev,
 }
 
 
+unsigned int readconfword32(unsigned char bus, unsigned char dev,
+                            unsigned char func, unsigned char offset) {
+  unsigned int address;
+  unsigned int lbus = (unsigned int)bus;
+  unsigned int lslot = (unsigned int)dev;
+  unsigned int lfunc = (unsigned int)func;
+
+  // Create configuration address as per Figure 1
+  address = (unsigned int)((lbus << 16) | (lslot << 11) | (lfunc << 8) |
+                           (offset & 0xFC) | ((unsigned int)0x80000000));
+
+  // Write out the address
+  outl(0xCF8, address);
+  // Read in the data
+  // (offset & 2) * 8) = 0 will choose the first word of the 32-bit register
+  return inl(0xCFC);
+}
+
+
 
 
 

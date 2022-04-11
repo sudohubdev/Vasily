@@ -9,4 +9,7 @@ extern char donemsg_str[];
 
 extern char* donemsg;
 extern multiboot_info_t globl_info;
+extern unsigned int __krnl_end;
+
 #endif // COMMON_H_INCLUDED
+

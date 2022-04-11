@@ -492,7 +492,7 @@ decl_write(ide_devfs_write){
 
 int drive_counter=0;
 
-void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
+static void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
                unsigned int b3, unsigned int b4) {
   int k, count = 0;
 

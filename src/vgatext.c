@@ -373,13 +373,17 @@ unsigned int prevcursorpos[2] = {0, 0};
 
 void set_term_colour(unsigned short c) { default_colour = c; };
 
-void putpixel(unsigned int c, unsigned int x, unsigned int y) {
-  unsigned char *p =
-      globl_info.framebuffer_addr + (unsigned char*)((y * (unsigned int)globl_info.framebuffer_width + x) *
-                                     (globl_info.framebuffer_bpp / 8));
-  for (unsigned int i = 0; i < (globl_info.framebuffer_bpp / 8); ++i) {
-    p[i] = (255 & (c >> (i * 8)));
-  }
+inline void putpixel(unsigned int c, unsigned int x, unsigned int y) {
+    unsigned char *p = globl_info.framebuffer_addr + (unsigned char*)((y * (unsigned int)globl_info.framebuffer_width + x) * (globl_info.framebuffer_bpp / 8));
+    if(globl_info.framebuffer_bpp==4){
+        p = c;
+    }
+    else{
+        for (unsigned int i = 0; i < (globl_info.framebuffer_bpp / 8); ++i) {
+            p[i] = (255 & (c >> (i * 8)));
+        }
+    }
+
 }
 
 void drawchar(unsigned char c, int x, int y, int fgcolor, int bgcolor) {
@@ -505,7 +509,7 @@ void reverse(char s[]) {
   }
 }
 void putunum(unsigned int i, int base) {
-  char s[10] = {0};
+  char s[100] = {0};
   int it = 0;
   do {
     s[it++] = "0123456789ABCDEF\0"[i % base];

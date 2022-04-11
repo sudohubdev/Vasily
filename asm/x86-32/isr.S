@@ -327,9 +327,24 @@ error_13:
     iretl
     
 error_14:
+    pushl %ebx
+    movl 4(%esp),%ebx
+    movl %ebx,err_eip
+    popl %ebx
     pushal
-    movl $14,err_code
-    
+    movl current_task,%ebx
+    cmpb $0,28(%ebx)
+    jnz 1
+    movl $14,err_code  
+    pushl 36(%esp)
+    pushl 44(%esp)
+    pushl $0
+    pushl err_eip
+    pushl $error_str
+    call exception_handler
+    cli
+    hlt
+    1:
     popal
     iretl
     

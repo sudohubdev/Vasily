@@ -27,5 +27,6 @@ void initialize_crap() {
   init_ide();
   init_sata();
   init_fat();
+  text_scroll();
   // TODO: KERNEL MODULES
 }
