@@ -27,6 +27,11 @@ unsigned short readconfword(unsigned char bus, unsigned char dev,
   return tmp;
 }
 
+
+
+
+
+
 void chkfunc(unsigned char bus, unsigned char device, unsigned char function) {
   unsigned char baseClass;
   unsigned char subClass;

@@ -3,16 +3,17 @@
  .globl memcpy
  .globl strcpy
  .globl strlen
- 
-    memset:    
-        movl 4(%esp),%edi;  
-        movb 8(%esp),%al;   
-        movl 12(%esp),%ecx;       
-        pushfl;
-        cld;
-        rep stosb;
-        popfl;
-        ret;
+    memset:
+        movl 4(%esp),%edi
+        movb 8(%esp),%al
+        movl 12(%esp),%ecx
+        pushfl
+        cld 
+        rep stosb
+        popfl
+        movl 4(%esp),%eax
+        ret
+
     memcpy:     
         movl 8(%esp),%esi;
         movl 4(%esp),%edi;

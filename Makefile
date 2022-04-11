@@ -8,7 +8,7 @@ x86_o=$(x86_asm:.S=.o)
 c_src= $(wildcard src/*.c) $(wildcard src/dev/*.c) $(wildcard src/fs/*.c)
 c_obj=$(c_src:.c=.o)
 LDFLAGS=-ffreestanding -nostdlib -lgcc 
-CFLAGS= -Wall -Wextra -ffreestanding -Ofast -Wall -Wextra -I/usr/include/multiboot -I./include -std=gnu99
+CFLAGS= -Wall -Wextra -ffreestanding -O0 -Wall -Wextra -I/usr/include/multiboot -I./include -std=gnu99 -pipe -march=i686
 ASFLAGS=-I/usr/include/multiboot
 all: vasily.iso $(c_src) $(x86_asm)
 
@@ -18,6 +18,8 @@ clean:
 
 test: all
 	qemu-system-i386 -cdrom vasily.iso -hda test.img
+testahci: all
+	qemu-system-i386 -cdrom vasily.iso -drive id=disk,file=test.img,if=none -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0 -no-reboot -d cpu_reset
 test4g: all
 	qemu-system-i386 -cdrom vasily.iso -m 4096
 bochs_test: all

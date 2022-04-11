@@ -11,6 +11,8 @@
 #include <multiboot.h>
 #include "dev/pci.h"
 #include "dev/pic.h"
+#include "dev/sata.h"
+#include "fs/fat.h"
 
 extern multiboot_info_t globl_info;
 void initialize_crap() {
@@ -23,5 +25,7 @@ void initialize_crap() {
   init_multitask();
   init_pci();
   init_ide();
+  init_sata();
+  init_fat();
   // TODO: KERNEL MODULES
 }

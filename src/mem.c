@@ -81,12 +81,9 @@ void init_paging() {
   krnl_pagedir[0].p = 1;
   for (unsigned int i = 0; i <= 0x200000; i += 0x1000)
     krnl_map_page(krnl_pagedir, i, i);
-  for (unsigned int i = 0;
-       i < (globl_info.framebuffer_height * (1 + globl_info.framebuffer_width) *
-            (globl_info.framebuffer_bpp / 8) / 0x1000);
-       ++i)
-    krnl_map_page(krnl_pagedir, globl_info.framebuffer_addr + i * 0x1000,
-                  globl_info.framebuffer_addr + i * 0x1000);
+  for (unsigned int i = 0; i < (globl_info.framebuffer_height * (1 + globl_info.framebuffer_width) * (globl_info.framebuffer_bpp / 8) / 0x2000)*2;++i){
+      krnl_map_page(krnl_pagedir, globl_info.framebuffer_addr + i * 0x1000,globl_info.framebuffer_addr + i * 0x1000);
+  }
   flush_page_table(krnl_pagedir);
   putstring(donemsg);
 }

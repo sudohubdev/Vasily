@@ -34,6 +34,8 @@ struct IDEChannelRegisters *getchannel(unsigned int id) {
   return iter;
 }
 
+int es_bac;
+
 void ide_read_buffer(struct IDEChannelRegisters *channel, unsigned char reg,
                      unsigned int buffer, unsigned int quads) {
   /* WARNING: This code contains a serious bug. The inline assembly trashes ES
@@ -42,7 +44,8 @@ void ide_read_buffer(struct IDEChannelRegisters *channel, unsigned char reg,
    */
   if (reg > 0x07 && reg < 0x0C)
     ide_write(channel, ATA_REG_CONTROL, 0x80 | channel->nIEN);
-  asm("pushw %es; movw %ds, %ax; movw %ax, %es");
+  asm("movw %es,es_bac; movw %ds, %ax; movw %ax, %es");
+
   if (reg < 0x08)
     insl(channel->base + reg - 0x00, (unsigned int *)buffer, quads);
   else if (reg < 0x0C)
@@ -51,7 +54,8 @@ void ide_read_buffer(struct IDEChannelRegisters *channel, unsigned char reg,
     insl(channel->ctrl + reg - 0x0A, (unsigned int *)buffer, quads);
   else if (reg < 0x16)
     insl(channel->bmide + reg - 0x0E, (unsigned int *)buffer, quads);
-  asm("popw %es;");
+
+  asm("movw es_bac,%es");
   if (reg > 0x07 && reg < 0x0C)
     ide_write(channel, ATA_REG_CONTROL, channel->nIEN);
 }
@@ -622,6 +626,7 @@ void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
   for (int j = 0; j < 2; j++)
     for (int i = 0; i < 4; i++)
       if ((j == 0 ? ideit : ideit->second)->ide_devices[i].Reserved == 1) {
+
         // printk(" Found %s Drive %dGB - %s\n",(const char *[]){"ATA",
         // "ATAPI"}[ide_devices[i].Type], ide_devices[i].Size / 1024 / 1024 /
         // 2,ide_devices[i].Model);
@@ -630,12 +635,15 @@ void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
             newfile->inode;
         newfile->name[0]='p';
         newfile->name[1]='d';
-        newfile->name[2]='0'+(++drive_counter);
+        newfile->name[2]='A'+(drive_counter/10);
+        newfile->name[3]='a'+(drive_counter++);
         putstring("dev model: ");
         putstring((j == 0 ? ideit : ideit->second)->ide_devices[i].Model);
         putstring(" devfs inode ");
         putunum((j == 0 ? ideit : ideit->second)->ide_devices[i].devfs_inode,
                 10);
+        putstring(" devfs filename ");
+        putstring(newfile->name);
         putstring("\n");
         ++dev_it;
       }
@@ -654,6 +662,7 @@ void init_ide() {
       putstring(" func ");
       putunum(it->func, 10);
       putstring("\n");
+
       ctrl_init((unsigned int)((readconfword(it->bus, it->dev, it->func, 0x12)
                                 << 16) |
                                readconfword(it->bus, it->dev, it->func, 0x10)),
