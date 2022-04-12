@@ -338,7 +338,8 @@ error_14:
     movl $14,err_code  
     pushl 36(%esp)
     pushl 44(%esp)
-    pushl $0
+    movl %cr2,%ebp
+    pushl %ebp
     pushl err_eip
     pushl $error_str
     call exception_handler

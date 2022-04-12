@@ -53,7 +53,7 @@ void krnl_map_page(pagedir_t *p, unsigned int physaddr, unsigned int virtaddr) {
   page->r = 1;
   page->u = 0;
 }
-void krnl_map_page_uncacheable(pagedir_t *p, unsigned int physaddr, unsigned int virtaddr) {
+void krnl_map_page_debug(pagedir_t *p, unsigned int physaddr, unsigned int virtaddr) {
   if (p[virtaddr / 0x400000].raw == 0) {
     p[virtaddr / 0x400000].raw =
         (unsigned int)khamalloc(sizeof(page_t) * (0x400000 / 0x1000));
@@ -100,7 +100,7 @@ void init_paging() {
   krnl_pagedir[0].p = 1;
   for (unsigned int i = 0; i <= page_top; i += 0x1000)
     krnl_map_page(krnl_pagedir, i, i);
-  for (unsigned int i = 0; i < (globl_info.framebuffer_height * (1 + globl_info.framebuffer_width) * (globl_info.framebuffer_bpp / 8) / 0x2000)*2;++i){
+  for (unsigned int i = 0; i < (globl_info.framebuffer_height * (1 + globl_info.framebuffer_width) * (globl_info.framebuffer_bpp / 8) / 0x2000)*3;++i){
       krnl_map_page(krnl_pagedir, globl_info.framebuffer_addr + i * 0x1000,globl_info.framebuffer_addr + i * 0x1000);
   }
   flush_page_table(krnl_pagedir);

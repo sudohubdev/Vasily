@@ -344,9 +344,9 @@ extern unsigned int err_code;
 void exception_handler(char* msg,unsigned int eip,unsigned int code2,unsigned int flags,unsigned int cs,unsigned int edi,unsigned int esi,unsigned int ebp,unsigned int esp,unsigned int ebx,unsigned int edx,unsigned int ecx,unsigned int eax){
     putstring_xy(msg,gres[0]/2-((strlen(msg)-1)/2*8),gres[1]/2,0xc);
     putstring_xy("exception code:      ",gres[0]/2-((sizeof("exception code:       ")-1)*8),gres[1]/2+32,0xc);
-    putunum_xy(err_code,10,0,gres[1]/2+32,0xc);
+    putunum_xy(err_code,16,0,gres[1]/2+32,0xc);
     putstring_xy("exception error code:",gres[0]/2-((sizeof("exception error code: ")-1)*8),gres[1]/2+48,0xc);
-    putunum_xy(code2,10,0,gres[1]/2+48,0xc);
+    putunum_xy(code2,16,0,gres[1]/2+48,0xc);
     putstring_xy("regs:",gres[0]/2-((sizeof("regs: ")-1)*8)-128,gres[1]/2+64,0xc);
     putunum_xy(eip,16,-112,gres[1]/2+64,0xc);
     putunum_xy(edi,16,-40,gres[1]/2+64,0xc);

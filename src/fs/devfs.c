@@ -10,7 +10,7 @@ unsigned int inodecounter=0;
 struct vfs_node* devfs_root;
 
 decl_open(devfs_open){
-    flags=flags+1;
+    flags=flags+1; //stub
     int i;
     for(i=0;i<1024;++i){
         if(current_task->fds[i]==0){

@@ -37,4 +37,5 @@ typedef union{
 void set_usage_bm(unsigned int addr);
 void unset_usage_bm(unsigned int addr);
 int test_usage_bm(unsigned int addr);
-void krnl_map_page_uncacheable(pagedir_t *p, unsigned int physaddr, unsigned int virtaddr);
+void krnl_map_page_debug(pagedir_t *p, unsigned int physaddr, unsigned int virtaddr);
+void krnl_map_page(pagedir_t *p, unsigned int physaddr, unsigned int virtaddr);

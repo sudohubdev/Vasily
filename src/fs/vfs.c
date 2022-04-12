@@ -33,7 +33,7 @@ struct vfs_node{
 #define decl_close(name) int name(int fd) 
 #define decl_read(name) unsigned long name(int fd, void* buf,unsigned long count)
 #define decl_write(name) unsigned long name(int fd,void* buf,unsigned long count)
-#define decl_finddir(name) struct vfs_node* name(struct vfs_node* dir,char* n)
+#define decl_finddir(name) struct vfs_node* name(struct vfs_node* dir,char* nam)
 */
 
 void init_vfs(){
@@ -81,6 +81,16 @@ decl_readdir(readdir){
     return 0;
 }
 decl_finddir(finddir){
+    struct vfs_node* it=dir->child;
+    
+    while(it){
+        if(!strcmp(it->name,in)){
+            return it;
+        }   
+        it=it->next;
+    }
+    
+    
     return 0;
 }
 

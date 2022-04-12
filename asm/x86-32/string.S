@@ -3,7 +3,7 @@
  .globl memcpy
  .globl strcpy
  .globl strlen
-    memset:
+  /*  memset:
         movl 4(%esp),%edi
         movb 8(%esp),%al
         movl 12(%esp),%ecx

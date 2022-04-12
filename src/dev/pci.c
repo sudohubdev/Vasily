@@ -134,30 +134,6 @@ void init_pci() {
   khfree(it->next);
   it->next = 0;
   it = pciroot;
-  putstring("\n====pci device report====\n");
-  while (it) {
-    putstring("bus ");
-    putunum(it->bus, 10);
-    putstring(" dev ");
-    putunum(it->dev, 10);
-    putstring(" func ");
-    putunum(it->func, 10);
 
-    putstring(" class ");
-    putunum(it->classcode, 16);
-    putstring(" subclass ");
-    putunum(it->subclass, 16);
-    
-    putstring(" irq ");
-    putunum(it->irq,16);
-
-    putstring(" vendor:device ");
-    putunum(it->vendorid, 16);
-    putstring(":");
-    putunum(it->devid, 16);
-
-    putstring("\n");
-    it = it->next;
-  }
   putstring(donemsg_str);
 }

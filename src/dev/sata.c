@@ -462,15 +462,17 @@ int controller_count=0;
 static void ctrl_init(struct pcidev* it){
     int bar5=readconfword32(it->bus,it->dev,it->func,0x24)&(~(unsigned int)0b1111);
     extern pagedir_t* krnl_pagedir;
-    krnl_map_page_uncacheable(krnl_pagedir, bar5, 0x800000+controller_count*0x10000);
-    struct ahci_mem* reg=0x800000+controller_count*0x10000;
+    krnl_map_page(krnl_pagedir, bar5, 0x800000+controller_count*0x1000);
+    krnl_map_page(krnl_pagedir, bar5+0x1000, 0x800000+controller_count*0x1000+0x1000);
+    struct ahci_mem* reg=0x800000+controller_count*0x2000;
     ++controller_count;
     unsigned int pi=reg->pi;
     int i=0;
     sata_device* it2=satroot=khmalloc(sizeof(sata_device));
     
-    AHCI_BASE=khmalloc(0x120000);
+    AHCI_BASE=khmalloc(0x110000);
     AHCI_BASE=AHCI_BASE+(0x80-((unsigned int)AHCI_BASE%0x80));
+    
     while(i<32){
         if (pi&1){
             int dt = check_type(&reg->ports[i]);

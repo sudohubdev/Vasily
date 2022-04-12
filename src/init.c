@@ -13,6 +13,7 @@
 #include "dev/pic.h"
 #include "dev/sata.h"
 #include "fs/fat.h"
+#include "fs/mbr.h"
 
 extern multiboot_info_t globl_info;
 void initialize_crap() {
@@ -26,6 +27,7 @@ void initialize_crap() {
   init_pci();
   init_ide();
   init_sata();
+  init_mbr();
   init_fat();
   //text_scroll();
   // TODO: KERNEL MODULES

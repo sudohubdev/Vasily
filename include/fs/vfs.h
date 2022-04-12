@@ -20,7 +20,7 @@ struct dirent{
 #define decl_read(name) unsigned long name(int fd, void* buf,unsigned long count,unsigned int off)
 #define decl_write(name) unsigned long name(int fd,void* buf,unsigned long count,unsigned int off)
 #define decl_readdir(name) struct vfs_node* name(const struct vfs_node* dir)
-#define decl_finddir(name) struct vfs_node* name(const char* in)
+#define decl_finddir(name) struct vfs_node* name(struct vfs_node* dir,const char* in)
 
 struct vfs_node{
     decl_open((*open));

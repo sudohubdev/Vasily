@@ -359,12 +359,12 @@ unsigned short *buf_ptr;
 
 extern multiboot_info_t globl_info;
 
-unsigned short *buf_curpos;
+unsigned short *buf_curpos; //DRAW POINT
 
 int enable_log=1;
 
 unsigned short default_colour = 0x7;
-void buff_putchar(int x, int y, short c, unsigned short colour) {
+inline void buff_putchar(int x, int y, short c, unsigned short colour) {
         *(unsigned short *)(buf_ptr + y * tres[0] + x) = (colour << 8 | c);
 }
 unsigned int cursorpos[2] = {0, 0};
@@ -386,7 +386,7 @@ inline void putpixel(unsigned int c, unsigned int x, unsigned int y) {
 
 }
 
-void drawchar(unsigned char c, int x, int y, int fgcolor, int bgcolor) {
+inline void drawchar(unsigned char c, int x, int y, int fgcolor, int bgcolor) {
   unsigned int cx, cy;
   int mask[8] = {1, 2, 4, 8, 16, 32, 64, 128};
   unsigned char *glyph = &vga_font[0] + c * 16;
@@ -417,10 +417,12 @@ void buf_flush() {
 
     for (unsigned long y = 0; y <= (cursorpos[1]); ++y) {
        for (unsigned long x = 0; x <= buf_curpos[y]; ++x) {
-
+            if(x>buf_curpos[y]&&x<tres[0]){
+                drawchar((char)0, x * 8, y * 16,textmode_lookup[buf_ptr[y * tres[0] + x]>>8], 0);
+            }
+            else if (x<=buf_curpos[y])
             drawchar((char)buf_ptr[y * tres[0] + x], x * 8, y * 16,textmode_lookup[buf_ptr[y * tres[0] + x]>>8], 0);
-      
-          
+            
         }
     }
   }
@@ -430,18 +432,21 @@ void buf_flush() {
 void text_scroll() {
   if (cursorpos[1] > 0) {
     for (unsigned int x = 0; x < tres[0]; ++x) {
-      for (unsigned int y = 1; y < cursorpos[1]; ++y) {
-        buf_ptr[(y - 1) * tres[0] + x] = buf_ptr[(y)*tres[0] + x];
+      for (unsigned int y = 0; y < tres[1]; ++y) {
+        buf_ptr[(y) * tres[0] + x] = buf_ptr[(y+1)*tres[0] + x];
       }
     }
-    for (unsigned int x = 0; x < tres[0]; ++x) {
-      buf_ptr[(cursorpos[1] - 1) * tres[0] + x] = 0;
-    }
-
     --cursorpos[1];
   }
-  memcpy(buf_ptr,buf_ptr+2,tres[1]*2);
+  //memcpy(buf_ptr,buf_ptr+2,tres[1]*2);
+  memcpy(buf_curpos,buf_curpos+2,tres[1]*2);
+  for (unsigned int x = 0; x < tres[0]; ++x) {
+      buf_ptr[(tres[1]-1) * (tres[0]) + x] = 0;
+  }
+  buf_curpos[tres[1]-1]=tres[0]-1;
+
   buf_flush();
+  buf_curpos[tres[1]-1]=0;
 
   move_cursor(cursorpos[0], cursorpos[1]);
 }
@@ -460,7 +465,9 @@ void putstring(const char *s) {
       ++cursorpos[0];
       ++buf_curpos[cursorpos[1]];
       if (cursorpos[0] == tres[0]) {
+        --buf_curpos[cursorpos[1]];
         ++cursorpos[1];
+        buf_curpos[cursorpos[1]]=0;
         cursorpos[0] = 0;
         if (cursorpos[1] >= tres[1]) {
           text_scroll();
@@ -518,7 +525,7 @@ void putunum(unsigned int i, int base) {
   putstring(s);
 }
 void putunum_xy(unsigned int i, int base,int xoff,unsigned int y,unsigned int fc) {
-  char s[10] = {0};
+  char s[100] = {0};
   int it = 0;
   do {
     s[it++] = "0123456789ABCDEF\0"[i % base];
@@ -531,7 +538,7 @@ void putunum_xy(unsigned int i, int base,int xoff,unsigned int y,unsigned int fc
   reverse(s);
   putstring_xy(s,gres[0]/2-strlen(s)/2+xoff,y,fc);
 }
-void move_cursor(int x, int y) {
+inline void move_cursor(int x, int y) {
     if(enable_log){
   if (globl_info.framebuffer_type == 2) {
     unsigned short pos = y * tres[0] + x;
