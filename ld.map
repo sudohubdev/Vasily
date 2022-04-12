@@ -14,7 +14,7 @@ Linker script and memory map
                 0x0000000000040000                . = 0x40000
                 0x0000000000040000                __krnl_start = .
 
-.text           0x0000000000040000     0x61c6
+.text           0x0000000000040000     0x6442
  *(.multiboot)
  .multiboot     0x0000000000040000       0x30 asm/x86-32/header.o
  *(.text)
@@ -116,7 +116,7 @@ Linker script and memory map
                 0x000000000004232e                putunum_xy
                 0x00000000000423f6                move_cursor
                 0x00000000000424d9                init_vga
- .text          0x0000000000042654     0x1e89 src/dev/ide.o
+ .text          0x0000000000042654     0x2105 src/dev/ide.o
                 0x0000000000042654                getchannel
                 0x00000000000426a1                ide_read_buffer
                 0x00000000000427e3                ide_read
@@ -129,53 +129,53 @@ Linker script and memory map
                 0x0000000000043458                ide_read_sectors
                 0x000000000004369c                ide_write_sectors
                 0x000000000004383e                ide_devfs_read
-                0x000000000004389b                ide_devfs_write
-                0x0000000000044164                init_ide
- .text          0x00000000000444dd      0x188 src/dev/keyboard.o
-                0x00000000000444dd                keyboard_handler
- .text          0x0000000000044665      0x6ba src/dev/pci.o
-                0x0000000000044665                readconfword
-                0x000000000004470e                readconfword32
-                0x000000000004479b                chkfunc
-                0x0000000000044966                chkdev
-                0x0000000000044a6c                chkbus
-                0x0000000000044aa1                init_pci
- .text          0x0000000000044d1f      0x140 src/dev/pic.o
-                0x0000000000044d1f                init_pic
- .text          0x0000000000044e5f      0xf61 src/dev/sata.o
-                0x0000000000044e5f                sata_irq
-                0x0000000000044e6c                sata_write
-                0x000000000004513b                sata_read
-                0x000000000004541a                find_cmdslot
-                0x000000000004547a                port_rebase
-                0x00000000000455cf                start_cmd
-                0x0000000000045607                stop_cmd
-                0x00000000000456d1                sata_devfs_read
-                0x000000000004584d                sata_devfs_write
-                0x0000000000045cad                init_sata
- .text          0x0000000000045dc0      0x2e2 src/fs/devfs.o
-                0x0000000000045dc0                devfs_open
-                0x0000000000045e0d                devfs_close
-                0x0000000000045e2a                devfs_readdir
-                0x0000000000045e30                devfs_read
-                0x0000000000045e69                devfs_write
-                0x0000000000045ea2                devfs_finddir
-                0x0000000000045ea8                devfs_int_creat
-                0x0000000000045fed                devfs_init
- .text          0x00000000000460a2        0x6 src/fs/fat.o
-                0x00000000000460a2                init_fat
- .text          0x00000000000460a8      0x11e src/fs/vfs.o
-                0x00000000000460a8                init_vfs
-                0x0000000000046176                fd_node_find
-                0x000000000004618a                open
-                0x0000000000046194                close
-                0x000000000004619e                read
-                0x00000000000461a8                write
-                0x00000000000461b2                readdir
-                0x00000000000461bc                finddir
+                0x00000000000439ab                ide_devfs_write
+                0x00000000000443e0                init_ide
+ .text          0x0000000000044759      0x188 src/dev/keyboard.o
+                0x0000000000044759                keyboard_handler
+ .text          0x00000000000448e1      0x6ba src/dev/pci.o
+                0x00000000000448e1                readconfword
+                0x000000000004498a                readconfword32
+                0x0000000000044a17                chkfunc
+                0x0000000000044be2                chkdev
+                0x0000000000044ce8                chkbus
+                0x0000000000044d1d                init_pci
+ .text          0x0000000000044f9b      0x140 src/dev/pic.o
+                0x0000000000044f9b                init_pic
+ .text          0x00000000000450db      0xf61 src/dev/sata.o
+                0x00000000000450db                sata_irq
+                0x00000000000450e8                sata_write
+                0x00000000000453b7                sata_read
+                0x0000000000045696                find_cmdslot
+                0x00000000000456f6                port_rebase
+                0x000000000004584b                start_cmd
+                0x0000000000045883                stop_cmd
+                0x000000000004594d                sata_devfs_read
+                0x0000000000045ac9                sata_devfs_write
+                0x0000000000045f29                init_sata
+ .text          0x000000000004603c      0x2e2 src/fs/devfs.o
+                0x000000000004603c                devfs_open
+                0x0000000000046089                devfs_close
+                0x00000000000460a6                devfs_readdir
+                0x00000000000460ac                devfs_read
+                0x00000000000460e5                devfs_write
+                0x000000000004611e                devfs_finddir
+                0x0000000000046124                devfs_int_creat
+                0x0000000000046269                devfs_init
+ .text          0x000000000004631e        0x6 src/fs/fat.o
+                0x000000000004631e                init_fat
+ .text          0x0000000000046324      0x11e src/fs/vfs.o
+                0x0000000000046324                init_vfs
+                0x00000000000463f2                fd_node_find
+                0x0000000000046406                open
+                0x0000000000046410                close
+                0x000000000004641a                read
+                0x0000000000046424                write
+                0x000000000004642e                readdir
+                0x0000000000046438                finddir
 
-.iplt           0x00000000000461c6        0x0
- .iplt          0x00000000000461c6        0x0 asm/x86-32/boot.o
+.iplt           0x0000000000046442        0x0
+ .iplt          0x0000000000046442        0x0 asm/x86-32/boot.o
 
 .data           0x0000000000047000     0x30d6
  *(.data)

@@ -377,8 +377,6 @@ static int check_type(ahci_port *port)
 
 static int drive_counter=0;
 
-#define decl_read(name) unsigned long name(int fd, void* buf,unsigned long count,unsigned int off)
-#define decl_write(name) unsigned long name(int fd,void* buf,unsigned long count,unsigned int off)
 
 decl_read(sata_devfs_read){
     int inode=fd_node_find(fd)->inode;

@@ -474,10 +474,39 @@ breakout:
   return err;
 }
 
+
 decl_read(ide_devfs_read){
     int inode=fd_node_find(fd)->inode;
     
-    return  ide_read_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
+
+            unsigned int off2=off%512;
+
+            char* buf2=khmalloc(512);
+                
+            ide_read_sectors(inode,1,off/512,0x10, buf2);
+            memcpy(buf,buf2+off2,512-off2);
+            buf+=512-off2;
+            off+=512-off2;
+            count-=512-off2;
+            
+            unsigned int count2=count%512;
+
+            ide_read_sectors(inode,count/512,off/512,0x10, buf);
+                
+            off+=count;
+            ide_read_sectors(inode,1,off/512,0x10, buf);
+            memcpy(buf+count-count2,buf2,count%512);
+            
+            khfree(buf2);
+            
+            
+        
+            
+            
+    
+    
+    
+    return 0;// ide_read_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
 
     
 }   
@@ -485,11 +514,39 @@ decl_read(ide_devfs_read){
 decl_write(ide_devfs_write){
     int inode=fd_node_find(fd)->inode;
 
-    return  ide_write_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
+
+            unsigned int off2=off%512;
+
+            char* buf2=khmalloc(512);
+            
+            ide_read_sectors(inode,1,off/512,0x10, buf2);
+            memcpy(buf2+off2,buf,512-off2);
+            ide_write_sectors(inode,1,off/512,0x10, buf2);
+
+            
+            buf+=512-off2;
+            off+=512-off2;
+            count-=512-off2;
+            
+            unsigned int count2=count%512;
+
+            ide_write_sectors(inode,count/512,off/512,0x10, buf);
+
+            off+=count;
+            ide_read_sectors(inode,1,off/512,0x10, buf2);
+            memcpy(buf2,buf+count-count2,count%512);
+            ide_write_sectors(inode,1,off/512,0x10, buf2);
+
+            
+            khfree(buf2);
+            
+            
+    
+    
+    return 0; //ide_write_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
 
 
 }
-
 int drive_counter=0;
 
 static void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
