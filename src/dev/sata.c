@@ -7,6 +7,7 @@
 #include "fs/vfs.h"
 #include "heap.h"
 #include "idt.h"
+#include "klibc/string.h"
 
 #define ATA_CMD_READ_DMA_EX 0x25
 #define ATA_CMD_WRITE_DMA_EX     0x35
@@ -158,6 +159,9 @@ int sata_write(sata_device *in, uint32_t startl, uint32_t starth, uint32_t count
 
 int sata_read(sata_device *in, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf)
 {
+    if(count==0){
+        return 1;
+    }
     ahci_port *port=in->portptr;
 	port->is = (uint32_t) -1;		// Clear pending interrupt bits
 	int spin = 0; // Spin lock timeout counter
@@ -373,8 +377,41 @@ static int check_type(ahci_port *port)
 
 static int drive_counter=0;
 
+#define decl_read(name) unsigned long name(int fd, void* buf,unsigned long count,unsigned int off)
+#define decl_write(name) unsigned long name(int fd,void* buf,unsigned long count,unsigned int off)
+
 decl_read(sata_devfs_read){
     int inode=fd_node_find(fd)->inode;
+    sata_device* it=satroot;
+    
+    while(it)
+    {
+            unsigned int off2=off%512;
+
+            char* buf2=khmalloc(512);
+                
+            sata_read(it,off/512,0,1,buf2);
+            memcpy(buf,buf2+off2,512-off2);
+            buf+=512-off2;
+            off+=512-off2;
+            count-=512-off2;
+            
+            unsigned int count2=count%512;
+
+            sata_read(it,off/512,0,count/512,buf);
+                
+            off+=count;
+            sata_read(it,off/512,0,1,buf2);
+            memcpy(buf+count-count2,buf2,count%512);
+            
+            khfree(buf2);
+            
+            
+        
+            
+            
+        it=it->next;
+    }
     
     
     return 0;// ide_read_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
@@ -384,7 +421,39 @@ decl_read(sata_devfs_read){
 
 decl_write(sata_devfs_write){
     int inode=fd_node_find(fd)->inode;
+    sata_device* it=satroot;
 
+    while(it)
+    {
+            unsigned int off2=off%512;
+
+            char* buf2=khmalloc(512);
+            
+            sata_read(it,off/512,0,1,buf2);
+
+            memcpy(buf2+off2,buf,512-off2);
+            sata_write(it,off/512,0,1,buf2);
+            
+            buf+=512-off2;
+            off+=512-off2;
+            count-=512-off2;
+            
+            unsigned int count2=count%512;
+
+            sata_write(it,off/512,0,count/512,buf);
+                
+            off+=count;
+            sata_read(it,off/512,0,1,buf2);
+            memcpy(buf2,buf+count-count2,count%512);
+            sata_write(it,off/512,0,1,buf2);
+            
+            
+            khfree(buf2);
+            
+            
+        it=it->next;
+    }
+    
     return 0; //ide_write_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
 
 
@@ -454,6 +523,7 @@ void init_sata(){
       
       struct pcidev* it=pciroot;
       
+
       while(it){          
           
           if(it->classcode==1&&it->subclass==6){
@@ -472,8 +542,6 @@ void init_sata(){
           it=it->next;   
       }
 
-    
-      
       
       putstring(donemsg_str);
       

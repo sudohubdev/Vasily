@@ -149,4 +149,5 @@ typedef struct sata_device {
     unsigned int port;
     ahci_port *portptr;
     ahci_mem *ctrl;
-} sata_device;
+    char* name;
+} sata_device __attribute__((packed));
