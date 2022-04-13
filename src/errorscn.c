@@ -341,7 +341,7 @@ unsigned char _home_clement_Documents_crash_tga[] = {
 
 extern unsigned int err_code;
 
-void exception_handler(char* msg,unsigned int eip,unsigned int code2,unsigned int flags,unsigned int cs,unsigned int edi,unsigned int esi,unsigned int ebp,unsigned int esp,unsigned int ebx,unsigned int edx,unsigned int ecx,unsigned int eax){
+void exception_handler(char* msg,unsigned int eip,unsigned int code2,unsigned int flags,unsigned int cs,unsigned int edi,unsigned int esi,unsigned int ebp,unsigned int* esp,unsigned int ebx,unsigned int edx,unsigned int ecx,unsigned int eax){
     putstring_xy(msg,gres[0]/2-((strlen(msg)-1)/2*8),gres[1]/2,0xc);
     putstring_xy("exception code:      ",gres[0]/2-((sizeof("exception code:       ")-1)*8),gres[1]/2+32,0xc);
     putunum_xy(err_code,16,0,gres[1]/2+32,0xc);
@@ -359,6 +359,13 @@ void exception_handler(char* msg,unsigned int eip,unsigned int code2,unsigned in
     putunum_xy(eax,16,-112,gres[1]/2+96,0xc);
     putunum_xy(flags,16,-40,gres[1]/2+96,0xc);
     putunum_xy(cs,16,32,gres[1]/2+96,0xc);
+    putstring_xy("stack: ",gres[0]/2-((sizeof("stack: ")-1)*8),gres[1]/2+120,0xc);
+    putunum_xy(*esp,16,32,gres[1]/2+120,0xc);
+    putunum_xy(*(esp+4),16,32,gres[1]/2+136,0xc);
+    putunum_xy(*(esp+8),16,32,gres[1]/2+136+16,0xc);
+    putunum_xy(*(esp+12),16,32,gres[1]/2+136+32,0xc);
+    putunum_xy(*(esp+16),16,32,gres[1]/2+136+48,0xc);
+    putunum_xy(*(esp+20),16,32,gres[1]/2+136+64,0xc);
 
 
     if(globl_info.framebuffer_type!=2){

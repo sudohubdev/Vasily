@@ -37,6 +37,7 @@ struct vfs_node{
     unsigned int uid,gid;
     unsigned long long sz;
     unsigned int inode;
+    unsigned int ispart;
     struct vfs_node* next,*child;
     char type;
 };

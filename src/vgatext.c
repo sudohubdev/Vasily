@@ -364,7 +364,7 @@ unsigned short *buf_curpos; //DRAW POINT
 int enable_log=1;
 
 unsigned short default_colour = 0x7;
-inline void buff_putchar(int x, int y, short c, unsigned short colour) {
+ void buff_putchar(int x, int y, short c, unsigned short colour) {
         *(unsigned short *)(buf_ptr + y * tres[0] + x) = (colour << 8 | c);
 }
 unsigned int cursorpos[2] = {0, 0};
@@ -386,7 +386,7 @@ inline void putpixel(unsigned int c, unsigned int x, unsigned int y) {
 
 }
 
-inline void drawchar(unsigned char c, int x, int y, int fgcolor, int bgcolor) {
+void drawchar(unsigned char c, int x, int y, int fgcolor, int bgcolor) {
   unsigned int cx, cy;
   int mask[8] = {1, 2, 4, 8, 16, 32, 64, 128};
   unsigned char *glyph = &vga_font[0] + c * 16;

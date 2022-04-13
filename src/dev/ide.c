@@ -494,7 +494,7 @@ decl_read(ide_devfs_read){
             ide_read_sectors(inode,count/512,off/512,0x10, buf);
                 
             off+=count;
-            ide_read_sectors(inode,1,off/512,0x10, buf);
+            ide_read_sectors(inode,1,off/512,0x10, buf2);
             memcpy(buf+count-count2,buf2,count%512);
             
             khfree(buf2);

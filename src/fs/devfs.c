@@ -67,9 +67,9 @@ struct vfs_node{
 */
 struct vfs_node* devfs_int_creat(decl_read((*driver_read)),decl_write((*driver_write))){
     struct vfs_node* it=devfs_root;
-    if(it->child){
+    if(it->child!=0){
         it=it->child;
-        while(it->next){
+        while(it->next!=0){
             it=it->next;
         }
         it->next=khmalloc(sizeof(struct vfs_node));

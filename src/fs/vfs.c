@@ -64,8 +64,14 @@ struct vfs_node* fd_node_find(int fd){
     return current_task->fds[fd];
 }
 
+
 decl_open(open){
+    if(in->open==0){
+        putstring("line 70(open)");
+        asm("cli;hlt");
+    }
     in->open(in,0);
+
     return 0;
 }
 decl_close(close){

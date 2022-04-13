@@ -533,7 +533,6 @@ void init_sata(){
                 putstring(" func ");
                 putunum(it->func, 10);
                 putstring("\n");
-                set_idt_entry(it->irq, sata_irq, 0x8, 0x8e); 
                 sata_ctrl_init(it);
               
         }
