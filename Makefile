@@ -17,9 +17,9 @@ clean:
 	
 
 test: all
-	qemu-system-i386 -cdrom vasily.iso -hda test.img
+	qemu-system-i386 -cdrom vasily.iso -hda test.img -boot d
 testahci: all
-	qemu-system-i386 -cdrom vasily.iso -drive id=disk,file=test.img,if=none,format=raw -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0 
+	qemu-system-i386 -cdrom vasily.iso -drive id=disk,file=test.img,if=none,format=raw -device ahci,id=ahci -device ide-hd,drive=disk,bus=ahci.0  -boot d
 test4g: all
 	qemu-system-i386 -cdrom vasily.iso -m 4096
 bochs_test: all

@@ -14,7 +14,7 @@ Linker script and memory map
                 0x0000000000040000                . = 0x40000
                 0x0000000000040000                __krnl_start = .
 
-.text           0x0000000000040000     0xb551
+.text           0x0000000000040000     0xb621
  *(.multiboot)
  .multiboot     0x0000000000040000       0x30 asm/x86-32/header.o
  *(.text)
@@ -158,50 +158,50 @@ Linker script and memory map
  .text          0x00000000000493c0      0x14b src/dev/pic.o
                 0x00000000000493c0                init_pic
  *fill*         0x000000000004950b        0x5 
- .text          0x0000000000049510     0x1c2c src/dev/sata.o
+ .text          0x0000000000049510     0x1c4c src/dev/sata.o
                 0x0000000000049510                sata_irq
-                0x0000000000049d00                sata_devfs_read
-                0x0000000000049e80                sata_write
-                0x000000000004a290                sata_devfs_write
-                0x000000000004a3f0                sata_read
-                0x000000000004a830                find_cmdslot
-                0x000000000004a9f0                port_rebase
-                0x000000000004ac70                start_cmd
-                0x000000000004aca0                stop_cmd
-                0x000000000004acd0                init_sata
- *fill*         0x000000000004b13c        0x4 
- .text          0x000000000004b140      0x24b src/fs/devfs.o
-                0x000000000004b140                devfs_open
-                0x000000000004b1b0                devfs_close
-                0x000000000004b1d0                devfs_readdir
-                0x000000000004b1e0                devfs_read
-                0x000000000004b200                devfs_write
-                0x000000000004b220                devfs_finddir
-                0x000000000004b230                devfs_int_creat
-                0x000000000004b320                devfs_init
- *fill*         0x000000000004b38b        0x5 
- .text          0x000000000004b390        0x1 src/fs/fat.o
-                0x000000000004b390                init_fat
- *fill*         0x000000000004b391        0xf 
- .text          0x000000000004b3a0       0x4e src/fs/mbr.o
-                0x000000000004b3a0                init_mbr
- *fill*         0x000000000004b3ee        0x2 
- .text          0x000000000004b3f0      0x161 src/fs/vfs.o
-                0x000000000004b3f0                open
-                0x000000000004b400                close
-                0x000000000004b410                read
-                0x000000000004b420                readdir
-                0x000000000004b430                finddir
-                0x000000000004b490                write
-                0x000000000004b4a0                init_vfs
-                0x000000000004b540                fd_node_find
+                0x000000000004a130                sata_devfs_read
+                0x000000000004a280                sata_write
+                0x000000000004a690                sata_devfs_write
+                0x000000000004a7e0                sata_read
+                0x000000000004a850                find_cmdslot
+                0x000000000004aa10                port_rebase
+                0x000000000004ac90                start_cmd
+                0x000000000004acc0                stop_cmd
+                0x000000000004acf0                init_sata
+ *fill*         0x000000000004b15c        0x4 
+ .text          0x000000000004b160      0x24b src/fs/devfs.o
+                0x000000000004b160                devfs_open
+                0x000000000004b1d0                devfs_close
+                0x000000000004b1f0                devfs_readdir
+                0x000000000004b200                devfs_read
+                0x000000000004b220                devfs_write
+                0x000000000004b240                devfs_finddir
+                0x000000000004b250                devfs_int_creat
+                0x000000000004b340                devfs_init
+ *fill*         0x000000000004b3ab        0x5 
+ .text          0x000000000004b3b0        0x1 src/fs/fat.o
+                0x000000000004b3b0                init_fat
+ *fill*         0x000000000004b3b1        0xf 
+ .text          0x000000000004b3c0       0xd7 src/fs/mbr.o
+                0x000000000004b3c0                init_mbr
+ *fill*         0x000000000004b497        0x9 
+ .text          0x000000000004b4a0      0x181 src/fs/vfs.o
+                0x000000000004b4a0                open
+                0x000000000004b4c0                close
+                0x000000000004b4e0                read
+                0x000000000004b4f0                readdir
+                0x000000000004b500                finddir
+                0x000000000004b560                write
+                0x000000000004b570                init_vfs
+                0x000000000004b610                fd_node_find
 
-.iplt           0x000000000004b551        0x0
- .iplt          0x000000000004b551        0x0 asm/x86-32/boot.o
+.iplt           0x000000000004b621        0x0
+ .iplt          0x000000000004b621        0x0 asm/x86-32/boot.o
 
-.text.unlikely  0x000000000004b551       0xf9
+.text.unlikely  0x000000000004b621       0xf9
  .text.unlikely
-                0x000000000004b551       0xf9 src/dev/ide.o
+                0x000000000004b621       0xf9 src/dev/ide.o
 
 .data           0x000000000004c000     0x30fa
  *(.data)
@@ -259,7 +259,7 @@ Linker script and memory map
 .igot.plt       0x000000000004f0fc        0x0
  .igot.plt      0x000000000004f0fc        0x0 asm/x86-32/boot.o
 
-.bss            0x0000000000050000     0x1144
+.bss            0x0000000000050000      0xf3c
  *(COMMON)
  COMMON         0x0000000000050000      0x1fc asm/x86-32/boot.o
                 0x0000000000050000                data
@@ -322,44 +322,43 @@ Linker script and memory map
                 0x0000000000050f2c                devfs_root
                 0x0000000000050f30                inodecounter
  .bss           0x0000000000050f34        0x0 src/fs/fat.o
- *fill*         0x0000000000050f34        0xc 
- .bss           0x0000000000050f40      0x200 src/fs/mbr.o
-                0x0000000000050f40                mbr
- .bss           0x0000000000051140        0x4 src/fs/vfs.o
-                0x0000000000051140                memroot
+ .bss           0x0000000000050f34        0x4 src/fs/mbr.o
+                0x0000000000050f34                mbr
+ .bss           0x0000000000050f38        0x4 src/fs/vfs.o
+                0x0000000000050f38                memroot
 
-.rodata         0x0000000000052000       0x98
+.rodata         0x0000000000051000       0x98
  *(.rodata)
- .rodata        0x0000000000052000       0x32 src/vgatext.o
- .rodata        0x0000000000052032       0x66 src/dev/ide.o
+ .rodata        0x0000000000051000       0x32 src/vgatext.o
+ .rodata        0x0000000000051032       0x66 src/dev/ide.o
 
-.rodata.str1.1  0x0000000000052098      0x160
+.rodata.str1.1  0x0000000000051098      0x160
  .rodata.str1.1
-                0x0000000000052098       0x32 src/errorscn.o
+                0x0000000000051098       0x32 src/errorscn.o
  .rodata.str1.1
-                0x00000000000520ca       0x36 src/heap.o
+                0x00000000000510ca       0x36 src/heap.o
  .rodata.str1.1
-                0x0000000000052100        0xe src/idt.o
+                0x0000000000051100        0xe src/idt.o
  .rodata.str1.1
-                0x000000000005210e       0x11 src/krnl_main.o
+                0x000000000005110e       0x11 src/krnl_main.o
  .rodata.str1.1
-                0x000000000005211f       0x1d src/mem.o
+                0x000000000005111f       0x1d src/mem.o
  .rodata.str1.1
-                0x000000000005213c       0x14 src/multitask.o
+                0x000000000005113c       0x14 src/multitask.o
  .rodata.str1.1
-                0x0000000000052150        0xe src/dev/pci.o
+                0x0000000000051150        0xe src/dev/pci.o
  .rodata.str1.1
-                0x000000000005215e       0x76 src/dev/sata.o
+                0x000000000005115e       0x76 src/dev/sata.o
                                          0x78 (size before relaxing)
  .rodata.str1.1
-                0x00000000000521d4       0x10 src/fs/mbr.o
+                0x00000000000511d4       0x10 src/fs/mbr.o
  .rodata.str1.1
-                0x00000000000521e4       0x14 src/fs/vfs.o
+                0x00000000000511e4       0x14 src/fs/vfs.o
 
-.rodata.str1.4  0x00000000000521f8       0x47
+.rodata.str1.4  0x00000000000511f8       0x47
  .rodata.str1.4
-                0x00000000000521f8       0x47 src/dev/sata.o
-                0x000000000005323f                . = (. + 0x1000)
+                0x00000000000511f8       0x47 src/dev/sata.o
+                0x000000000005223f                . = (. + 0x1000)
                 0x0000000000054000                __krnl_end = ALIGN (0x4000)
 LOAD asm/x86-32/boot.o
 LOAD asm/x86-32/header.o
@@ -390,10 +389,10 @@ LOAD src/fs/mbr.o
 LOAD src/fs/vfs.o
 OUTPUT(vmvasily elf32-i386)
 
-.rel.dyn        0x0000000000053240        0x0
- .rel.got       0x0000000000053240        0x0 asm/x86-32/boot.o
- .rel.iplt      0x0000000000053240        0x0 asm/x86-32/boot.o
- .rel.text      0x0000000000053240        0x0 asm/x86-32/boot.o
+.rel.dyn        0x0000000000052240        0x0
+ .rel.got       0x0000000000052240        0x0 asm/x86-32/boot.o
+ .rel.iplt      0x0000000000052240        0x0 asm/x86-32/boot.o
+ .rel.text      0x0000000000052240        0x0 asm/x86-32/boot.o
 
 bss             0x0000000000000000     0x8004
  bss            0x0000000000000000     0x8004 asm/x86-32/boot.o

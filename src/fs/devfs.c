@@ -29,7 +29,9 @@ decl_readdir(devfs_readdir){
 }
 
 decl_read(devfs_read){
+    
     return current_task->fds[fd]->driver_read(fd,buf,count,off);
+    
 }
 
 decl_write(devfs_write){

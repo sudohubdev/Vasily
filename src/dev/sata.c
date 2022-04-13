@@ -381,9 +381,9 @@ static int drive_counter=0;
 decl_read(sata_devfs_read){
     int inode=fd_node_find(fd)->inode;
     sata_device* it=satroot;
-    
     while(it)
     {
+        if(it->devfs_inode==inode){
             unsigned int off2=off%512;
 
             char* buf2=khmalloc(512);
@@ -404,7 +404,7 @@ decl_read(sata_devfs_read){
             
             khfree(buf2);
             
-            
+        }
         
             
             
@@ -459,7 +459,7 @@ decl_write(sata_devfs_write){
 
 int controller_count=0;
 
-static void ctrl_init(struct pcidev* it){
+static void sata_ctrl_init(struct pcidev* it){
     int bar5=readconfword32(it->bus,it->dev,it->func,0x24)&(~(unsigned int)0b1111);
     extern pagedir_t* krnl_pagedir;
     krnl_map_page(krnl_pagedir, bar5, 0x800000+controller_count*0x1000);
@@ -485,7 +485,6 @@ static void ctrl_init(struct pcidev* it){
                 reg->ghc=(unsigned int)(1<<31);
                 reg->ghc=(unsigned int)(1<<1);
                 port_rebase(&reg->ports[i],i);
-                
                 
                 
                 newfile->name[0]='s';
@@ -535,7 +534,7 @@ void init_sata(){
                 putunum(it->func, 10);
                 putstring("\n");
                 set_idt_entry(it->irq, sata_irq, 0x8, 0x8e); 
-                ctrl_init(it);
+                sata_ctrl_init(it);
               
         }
         

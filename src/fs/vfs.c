@@ -65,13 +65,18 @@ struct vfs_node* fd_node_find(int fd){
 }
 
 decl_open(open){
-
+    in->open(in,0);
     return 0;
 }
 decl_close(close){
+    struct vfs_node* in=fd_node_find(fd);
+    in->close(fd);
     return 0;
 }
 decl_read(read){
+    struct vfs_node* it=fd_node_find(fd);
+
+    
     return 0;
 }
 decl_write(write){
