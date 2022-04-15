@@ -23,24 +23,19 @@ struct dirent{
 #define decl_finddir(name) struct vfs_node* name(struct vfs_node* dir,const char* in)
 
 struct vfs_node{
-    decl_open((*open));
-    decl_close((*close));
     decl_read((*read));
     decl_write((*write));
     decl_readdir((*readdir));
     decl_finddir((*finddir));
-    decl_read((*driver_read));
-    decl_write((*driver_write));
     struct vfs_node* mountpoint; //mountpoint is null if nothing is mounted
-    char name[255];
-    unsigned short perms;
+    char name[128];
+    unsigned short perms, mountindex;
     unsigned int uid,gid;
     unsigned long long sz;
     unsigned int inode;
-    unsigned int ispart;
-    struct vfs_node* next,*child;
+    struct vfs_node* next,*child, *parent;
     char type;
-};
+}__attribute__((packed));
 
 struct vfs_node* fd_node_find(int fd);
 
@@ -49,7 +44,6 @@ void init_vfs();
 extern struct vfs_node *memroot;
 
 int internal_mount(struct vfs_node *src,struct vfs_node *tar,const char* fsstring,unsigned long mountflags,const char* fsspec_flags);
-
 decl_open(open);
 decl_close(close);
 decl_read(read);

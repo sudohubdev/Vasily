@@ -4,5 +4,6 @@ boot: cdrom
 magic_break: enabled=1
 ata0: enabled=true, ioaddr1=0x1f0, ioaddr2=0x3f0, irq=14
 ata0-master: type=cdrom, path="vasily.iso", status=inserted, model="Generic 1234", biosdetect=auto
+ata1-master: type=disk, path="test.img2", status=inserted, model="hdd2", biosdetect=auto
 ata0-slave: type=disk, path="test.img", status=inserted, model="harddisk", biosdetect=auto
  display_library: x, options="gui_debug"

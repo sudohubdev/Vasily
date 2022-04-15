@@ -5,7 +5,7 @@
 #include "panic.h"
 #include "vgatext.h"
 #include <multiboot.h>
-#define page_top 0x800000
+#define page_top 0x1600000
 #define INDEX_FROM_BIT(a) (a / (8 * 4))
 #define OFFSET_FROM_BIT(a) (a % (8 * 4))
 unsigned int max_index;

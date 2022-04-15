@@ -9,35 +9,12 @@ unsigned int inodecounter=0;
 
 struct vfs_node* devfs_root;
 
-decl_open(devfs_open){
-    flags=flags+1; //stub
-    int i;
-    for(i=0;i<1024;++i){
-        if(current_task->fds[i]==0){
-            break;
-        }
-    }
-    current_task->fds[i]=in;
-    return i;
-}
-decl_close(devfs_close){
-    current_task->fds[fd]=0;
-    return 0;
-}
+
 decl_readdir(devfs_readdir){
     
 }
 
-decl_read(devfs_read){
-    
-    return current_task->fds[fd]->driver_read(fd,buf,count,off);
-    
-}
 
-decl_write(devfs_write){
-    return current_task->fds[fd]->driver_write(fd,buf,count,off);
-
-}
 
 decl_finddir(devfs_finddir){
     
@@ -82,14 +59,10 @@ struct vfs_node* devfs_int_creat(decl_read((*driver_read)),decl_write((*driver_w
 
 
     it->next=0;
-    it->open=devfs_open;
-    it->close=devfs_close;
-    it->read=devfs_read;
-    it->write=devfs_write;
+    it->read=driver_read;
+    it->write=driver_write;
     it->readdir=devfs_readdir;
     it->finddir=devfs_finddir;
-    it->driver_read=driver_read;
-    it->driver_write=driver_write;
     it->perms=0644;
     it->uid=0;
     it->gid=0;
@@ -102,10 +75,6 @@ struct vfs_node* devfs_int_creat(decl_read((*driver_read)),decl_write((*driver_w
 void devfs_init(){
         devfs_root=khmalloc(sizeof(struct vfs_node));
         devfs_root->perms=0b111101101;
-        devfs_root->open=devfs_open;
-        devfs_root->close=devfs_close;
-        devfs_root->read=devfs_read;
-        devfs_root->write=devfs_write;
         devfs_root->readdir=devfs_readdir;
         devfs_root->name[0]='d';
         devfs_root->name[1]='e';

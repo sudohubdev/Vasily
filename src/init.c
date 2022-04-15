@@ -27,8 +27,13 @@ void initialize_crap() {
   init_ide();
   init_sata();
   init_mbr();
-
   init_fat();
+    struct vfs_node test;
+  extern struct vfs_node* devfs_root;
+
+  void* ptr=finddir(devfs_root,"sdAb1");
+  internal_mount(ptr,&test,0,0,0);
+
   //text_scroll();
   // TODO: KERNEL MODULES
 }

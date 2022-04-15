@@ -13,4 +13,5 @@ void krnl_main(multiboot_info_t *inf) {
   memcpy(&globl_info,inf,sizeof(multiboot_info_t));
   initialize_crap();
   putstring("end of krnl_main");
+  asm("cli;hlt;");
 }

@@ -14,49 +14,45 @@ struct mbr_part{
         int inode;
         struct vfs_node* disk;
         struct mbr_part* next;
-        unsigned int off;
+        unsigned int off,count; //IN SECTORS
 };
 
 struct mbr_part *mbrroot;
 
 decl_read(mbr_read){
-    int inode=fd_node_find(fd);
-    
     struct mbr_part *it=mbrroot;
-    
+    int inode=fd_node_find(fd)->inode;
     while(it){
-        
         if(it->inode==inode){
-            int fd=it->disk->open(it->disk,0);
-            read(fd,buf,count,off+it->off*512);
+            int fd2=open(it->disk,0);
+            int err;
+            err=read(fd2,buf,count,off+(it->off*512));
+            close(fd2);
             
-            close(fd);
-            
-            return 0;
+            return err;
         }
         
         it=it->next;
     }
+
     return ENOENT;
 }
 decl_write(mbr_write){
-    int inode=fd_node_find(fd);
-    
     struct mbr_part *it=mbrroot;
-    
+    int inode=fd_node_find(fd)->inode;
     while(it){
-        
         if(it->inode==inode){
-            int fd=it->disk->open(it->disk,0);
-            write(fd,buf,count,off+it->off*512);
+            int fd2=open(it->disk,0);
+            write(fd2,buf,count,off+it->off*512);
             
-            close(fd);
+            close(fd2);
             
             return 0;
         }
         
         it=it->next;
     }
+
     return ENOENT;
 }
 
@@ -67,7 +63,8 @@ void init_mbr(){
     extern struct vfs_node* devfs_root;
     it=devfs_root->child;
     mbr=khmalloc(512);
-    struct mbr_part* mbrit=mbrroot=khmalloc(sizeof(struct mbr_part));
+    mbrroot=khmalloc(sizeof(struct mbr_part));
+    struct mbr_part *mbrit=mbrroot;
     int counter;
     while(it){
         counter=0;
@@ -91,6 +88,7 @@ void init_mbr(){
                         mbrit->off=mbr->entry[i].lba;
                         mbrit->disk=it;
                         mbrit->inode=newfile->inode;
+                        mbrit->count=mbr->entry[i].sizesect;
                         mbrit->next=khmalloc(sizeof(struct mbr_part));
                         mbrit=mbrit->next;
 

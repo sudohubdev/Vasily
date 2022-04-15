@@ -160,7 +160,7 @@ int sata_write(sata_device *in, uint32_t startl, uint32_t starth, uint32_t count
 int sata_read(sata_device *in, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf)
 {
     if(count==0){
-        return 1;
+        return 0;
     }
     ahci_port *port=in->portptr;
 	port->is = (uint32_t) -1;		// Clear pending interrupt bits
@@ -216,11 +216,11 @@ int sata_read(sata_device *in, uint32_t startl, uint32_t starth, uint32_t count,
 	cmdfis->counth = (count >> 8) & 0xFF;
  
 	// The below loop waits until the port is no longer busy before issuing a new command
-	while ((port->tfd & (ATA_DEV_BUSY | ATA_DEV_DRQ)) && spin < 1000000)
+	while ((port->tfd & (ATA_DEV_BUSY | ATA_DEV_DRQ)) && spin < 0xffffff)
 	{
 		spin++;
 	}
-	if (spin == 1000000)
+	if (spin == 0xffffff)
 	{
 		putstring("Port is hung\n");
 		return 0;
@@ -381,6 +381,7 @@ static int drive_counter=0;
 decl_read(sata_devfs_read){
     int inode=fd_node_find(fd)->inode;
     sata_device* it=satroot;
+    void* in_buf=buf;
     while(it)
     {
         if(it->devfs_inode==inode){
@@ -389,28 +390,28 @@ decl_read(sata_devfs_read){
             char* buf2=khmalloc(512);
                 
             sata_read(it,off/512,0,1,buf2);
-            memcpy(buf,buf2+off2,512-off2);
+            memcpy(in_buf,buf2+off2,512-off2);
             buf+=512-off2;
             off+=512-off2;
             count-=512-off2;
             
             unsigned int count2=count%512;
 
-            sata_read(it,off/512,0,count/512,buf);
+            sata_read(it,off/512,0,count/512,in_buf);
                 
             off+=count;
             sata_read(it,off/512,0,1,buf2);
-            memcpy(buf+count-count2,buf2,count%512);
+            memcpy(in_buf+count-count2,buf2,count%512);
             
             khfree(buf2);
-            
+            return 0;
         }
         
             
             
         it=it->next;
     }
-    
+    putstring("i have failed\n");
     
     return 0;// ide_read_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
 
@@ -462,9 +463,9 @@ int controller_count=0;
 static void sata_ctrl_init(struct pcidev* it){
     int bar5=readconfword32(it->bus,it->dev,it->func,0x24)&(~(unsigned int)0b1111);
     extern pagedir_t* krnl_pagedir;
-    krnl_map_page(krnl_pagedir, bar5, 0x800000+controller_count*0x1000);
-    krnl_map_page(krnl_pagedir, bar5+0x1000, 0x800000+controller_count*0x1000+0x1000);
-    struct ahci_mem* reg=0x800000+controller_count*0x2000;
+    krnl_map_page(krnl_pagedir, bar5, 0x1600000+controller_count*0x1000);
+    krnl_map_page(krnl_pagedir, bar5+0x1000, 0x1600000+controller_count*0x1000+0x1000);
+    struct ahci_mem* reg=0x1600000+controller_count*0x2000;
     ++controller_count;
     unsigned int pi=reg->pi;
     int i=0;

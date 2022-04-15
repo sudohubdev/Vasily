@@ -4,6 +4,7 @@
 #include "common.h"
 #include "heap.h"
 #include "klibc/string.h"
+#include "posix/errno.h"
 #include "multitask.h"
 
 extern unsigned int cursorpos[2];
@@ -35,20 +36,52 @@ struct vfs_node{
 #define decl_write(name) unsigned long name(int fd,void* buf,unsigned long count)
 #define decl_finddir(name) struct vfs_node* name(struct vfs_node* dir,char* nam)
 */
+struct vfs_node* mounts[1024];
+unsigned char detect[512];
+
+int internal_mount(struct vfs_node* src, struct vfs_node* tar, const char* fsstring, long unsigned int mountflags, const char* fsspec_flags){
+    for(int i=0;i<1024;++i){
+        if(mounts[i]==0){
+            mounts[i]=src;
+            tar->mountpoint=khmalloc(sizeof(struct vfs_node));
+            tar->mountindex=i;
+            int fd=open(src,0);
+            read(fd,detect,512,0);
+            putunum(detect[511],16);
+            if(detect[0]==0xEB){
+                putstring("fat detected");
+            }
+            close(fd);
+            return 0;
+        }
+            //look for an empty mount entry
+    }
+    return ENOMEM;
+    
+}
+
+int umount(struct vfs_node *in){
+    if(in->mountpoint==0){
+        return EINVAL;
+    }
+    
+    khfree(in->mountpoint);
+    mounts[in->mountindex]=0;
+    return 0;
+}
 
 void init_vfs(){
     putstring("init_vfs...");
     
+    
     memroot=khmalloc(sizeof(struct vfs_node));
     memroot->perms=0b111101101;
     memroot->type=vfsdir;
-    memroot->open=open;
-    memroot->close=close;
     memroot->read=read;
     memroot->write=write;
     memroot->readdir=readdir;
     memroot->finddir=finddir;
-    memroot->mountpoint=0;
+    memroot->mountpoint=0; 
     strcpy(memroot->name,"memroot");
     memroot->next=0;
     
@@ -66,24 +99,24 @@ struct vfs_node* fd_node_find(int fd){
 
 
 decl_open(open){
-    if(in->open==0){
-        putstring("line 70(open)");
-        asm("cli;hlt");
+    int i;
+    for(i=0;i<1024;++i){
+        if(current_task->fds[i]==0){
+            current_task->fds[i]=in;
+            return i;
+        }
     }
-    in->open(in,0);
-
     return 0;
 }
 decl_close(close){
-    struct vfs_node* in=fd_node_find(fd);
-    in->close(fd);
+
+    current_task->fds[fd]=0;
     return 0;
 }
 decl_read(read){
     struct vfs_node* it=fd_node_find(fd);
-
+    return it->read(fd,buf,count,off);
     
-    return 0;
 }
 decl_write(write){
     return 0;

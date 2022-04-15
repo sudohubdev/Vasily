@@ -264,5 +264,5 @@ void *kharealloc(void *in, unsigned int sz) {
 void init_heap() {
   k_heapBMInit(&system_heap);
   extern unsigned int __krnl_end;
-  k_heapBMAddBlock(&system_heap, (uintptr)&__krnl_end,0x800000-(uintptr)&__krnl_end, 4);
+  k_heapBMAddBlock(&system_heap, (uintptr)&__krnl_end,0x1600000-(uintptr)&__krnl_end, 4);
 }
