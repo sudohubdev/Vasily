@@ -37,7 +37,6 @@ struct vfs_node{
 #define decl_finddir(name) struct vfs_node* name(struct vfs_node* dir,char* nam)
 */
 struct vfs_node* mounts[1024];
-unsigned char detect[512];
 
 int internal_mount(struct vfs_node* src, struct vfs_node* tar, const char* fsstring, long unsigned int mountflags, const char* fsspec_flags){
     for(int i=0;i<1024;++i){
@@ -45,13 +44,7 @@ int internal_mount(struct vfs_node* src, struct vfs_node* tar, const char* fsstr
             mounts[i]=src;
             tar->mountpoint=khmalloc(sizeof(struct vfs_node));
             tar->mountindex=i;
-            int fd=open(src,0);
-            read(fd,detect,512,0);
-            putunum(detect[511],16);
-            if(detect[0]==0xEB){
-                putstring("fat detected");
-            }
-            close(fd);
+
             return 0;
         }
             //look for an empty mount entry
@@ -114,6 +107,9 @@ decl_close(close){
     return 0;
 }
 decl_read(read){
+    if(count==0){
+        return 0;
+    }
     struct vfs_node* it=fd_node_find(fd);
     return it->read(fd,buf,count,off);
     

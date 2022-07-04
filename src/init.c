@@ -13,6 +13,8 @@
 #include "dev/pic.h"
 #include "dev/sata.h"
 #include "fs/fat.h"
+
+#include "panic.h"
 #include "fs/mbr.h"
 extern multiboot_info_t globl_info;
 void initialize_crap() {
@@ -24,15 +26,14 @@ void initialize_crap() {
   init_vfs();
   init_multitask();
   init_pci();
-  init_ide();
   init_sata();
+  init_ide();
   init_mbr();
   init_fat();
-    struct vfs_node test;
+  /*  struct vfs_node test;
   extern struct vfs_node* devfs_root;
-
-  void* ptr=finddir(devfs_root,"sdAb1");
-  internal_mount(ptr,&test,0,0,0);
+  void* ptr=finddir(devfs_root,"pdAb1");
+  internal_mount(ptr,&test,0,0,0);*/
 
   //text_scroll();
   // TODO: KERNEL MODULES

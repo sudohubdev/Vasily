@@ -235,6 +235,8 @@ void k_heapBMFree(KHEAPBM *heap, void *ptr) {
 KHEAPBM system_heap;
 void *khamalloc(uint32 in) {
   unsigned int r = (unsigned int)k_heapBMAllocBound(&system_heap, in, 12);
+    memset(r,0,in);
+
   if (!r) {
     panic("khamalloc assert fail");
   }
@@ -243,6 +245,7 @@ void *khamalloc(uint32 in) {
 
 void *khmalloc(uint32 in) {
   unsigned int r = (unsigned int)k_heapBMAlloc(&system_heap, in);
+  memset(r,0,in);
   if (!r) {
     panic("khmalloc assert fail");
   }

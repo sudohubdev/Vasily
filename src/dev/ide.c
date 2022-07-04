@@ -8,6 +8,7 @@
 #include "vgatext.h"
 #include "isr.h"
 #include "fs/vfs.h"
+#include "klibc/string.h"
 int dev_it = 0;
 
 int idectrl_id_count = 0;
@@ -18,6 +19,7 @@ volatile unsigned char ide_irq_invoked = 0;
 static unsigned char atapi_packet[12] = {0xA8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
 struct IDEChannelRegisters *getchannel(unsigned int id) {
+
   struct IDEChannelRegisters *iter = idechannelroot;
   while (iter) {
     if (iter->id == id) {
@@ -44,7 +46,7 @@ void ide_read_buffer(struct IDEChannelRegisters *channel, unsigned char reg,
    */
   if (reg > 0x07 && reg < 0x0C)
     ide_write(channel, ATA_REG_CONTROL, 0x80 | channel->nIEN);
-  asm("movw %es,es_bac; movw %ds, %ax; movw %ax, %es");
+//  asm("movw %es,es_bac; movw %ds, %ax; movw %ax, %es");
 
   if (reg < 0x08)
     insl(channel->base + reg - 0x00, (unsigned int *)buffer, quads);
@@ -55,7 +57,7 @@ void ide_read_buffer(struct IDEChannelRegisters *channel, unsigned char reg,
   else if (reg < 0x16)
     insl(channel->bmide + reg - 0x0E, (unsigned int *)buffer, quads);
 
-  asm("movw es_bac,%es");
+ // asm("movw es_bac,%es");
   if (reg > 0x07 && reg < 0x0C)
     ide_write(channel, ATA_REG_CONTROL, channel->nIEN);
 }
@@ -105,36 +107,12 @@ unsigned char ide_polling(struct IDEChannelRegisters *channel,
 
   // (I) Delay 400 nanosecond for BSY to be set:
   // -------------------------------------------------
-  for (int i = 0; i < 4; i++)
     ide_read(channel, ATA_REG_ALTSTATUS); // Reading the Alternate Status port
-                                          // wastes 100ns; loop four times.
-
-  // (II) Wait for BSY to be cleared:
-  // -------------------------------------------------
-  while (ide_read(channel, ATA_REG_STATUS) & ATA_SR_BSY)
-    ; // Wait for BSY to be zero.
-
-  if (advanced_check) {
-    unsigned char state =
-        ide_read(channel, ATA_REG_STATUS); // Read Status Register.
-
-    // (III) Check For Errors:
-    // -------------------------------------------------
-    if (state & ATA_SR_ERR)
-      return 2; // Error.
-
-    // (IV) Check If Device fault:
-    // -------------------------------------------------
-    if (state & ATA_SR_DF)
-      return 1; // Device Fault.
-
-    // (V) Check DRQ:
-    // -------------------------------------------------
-    // BSY = 0; DF = 0; ERR = 0 so we should check for DRQ now.
-    if ((state & ATA_SR_DRQ) == 0)
-      return 3; // DRQ should be set
-  }
-
+    ide_read(channel, ATA_REG_ALTSTATUS); // Reading the Alternate Status port
+    ide_read(channel, ATA_REG_ALTSTATUS); // Reading the Alternate Status port
+    ide_read(channel, ATA_REG_ALTSTATUS); // Reading the Alternate Status port
+                        // wastes 100ns; loop four times.
+  ide_wait_irq();
   return 0; // No Error.
 }
 
@@ -306,7 +284,7 @@ breakout:;
 
 void ide_wait_irq() {
 
-    while(!ide_irq_invoked);
+    while(!ide_irq_invoked)io_wait();
 
   ide_irq_invoked = 0;
 }
@@ -324,6 +302,7 @@ void __attribute__ ((optimize(0))) ide_atapi_wait(unsigned int channel){
 unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,
                              unsigned int numsects, unsigned short selector,
                              unsigned int edi, unsigned int channel) {
+    
 
 
   unsigned int slavebit = getchannel(channel)->ide_devices[drive].Drive;
@@ -345,6 +324,7 @@ unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,
   atapi_packet[9] = numsects;
   atapi_packet[10] = 0x0;
   atapi_packet[11] = 0x0;
+
   ide_write(channel_ptr, ATA_REG_HDDEVSEL, slavebit << 4);
   for (int i = 0; i < 4; i++)
     ide_read(channel_ptr, ATA_REG_ALTSTATUS);
@@ -366,10 +346,7 @@ unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,
     
     if ((err = ide_polling(getchannel(channel), 1)))
       return err; // Polling and return if error.
-    asm("pushw %es");
-    asm("mov %%ax, %%es" ::"a"(selector));
     asm("rep insw" ::"c"(words), "d"(bus), "D"(edi)); // Receive Data.
-    asm("popw %es");
     edi += (words * 2);
   }
   // (X): Waiting for an IRQ:
@@ -379,10 +356,10 @@ unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,
   io_wait();
   // (XI): Waiting for BSY & DRQ to clear:
   // ------------------------------------------------------------------
-    ide_atapi_wait(channel );
-  //while(1);
+   while (ide_read(getchannel(channel), ATA_REG_STATUS) & (ATA_SR_BSY | ATA_SR_DRQ))
+      ;  //while(1);
 
-  return 0; // Easy, ... Isn't it?
+   return 0; // Easy, ... Isn't it?
 }
 
 unsigned char ide_read_sectors(unsigned int drive_inode,
@@ -392,6 +369,7 @@ unsigned char ide_read_sectors(unsigned int drive_inode,
         return 0;
     }
   unsigned char err = 0;
+  err=0;
 
   unsigned int drive, channel;
   struct IDEChannelRegisters *iter = idechannelroot;
@@ -417,8 +395,13 @@ breakout:
   }
   // 1: Check if the drive presents:
   // ==================================
+  
   if (drive > 3 || getchannel(channel)->ide_devices[drive].Reserved == 0){
-        putstring("not found");
+    
+        putstring("drive not found ");
+        putunum(getchannel(channel),16);
+        putstring("\n");
+        return ENODEV;
   // Drive Not Found!
   }
   // 2: Check if inputs are valid:
@@ -437,12 +420,13 @@ breakout:
         err = ide_ata_access(ATA_READ, drive, lba, numsects, es, buffer);
     
     }
-    else if (getchannel(channel)->ide_devices[drive].Type == IDE_ATAPI)
-      for (int i = 0; i < numsects; i++) {
+    else if (getchannel(channel)->ide_devices[drive].Type == IDE_ATAPI){
         //unsigned char ide_atapi_read(unsigned char drive, unsigned int lba,unsigned char numsects, unsigned short selector,unsigned int edi, unsigned int channel)
-          err = ide_atapi_read(drive, lba + i, 1, es, buffer + (i * 2048), channel);
-        ;
-      }
+        for(unsigned int i=0;i<numsects;++i){
+          //err = ide_atapi_read(drive, lba+i, 1, es, buffer+512*i, channel);
+        }
+    }
+      
   }
 
   return err;
@@ -492,12 +476,15 @@ breakout:
 
 
 decl_read(ide_devfs_read){
+            if(count==0){
+                return 0;
+            }
             int inode=fd_node_find(fd)->inode;
 
 
             unsigned int off2=off%512;
 
-            char* buf2=khmalloc(512);
+            char *buf2=khmalloc(1024);
             ide_read_sectors(inode,1,off/512,0x10, buf2);
             memcpy(buf,buf2+off2,512-off2);
             buf+=512-off2;
@@ -511,7 +498,6 @@ decl_read(ide_devfs_read){
             off+=count;
             ide_read_sectors(inode,1,off/512,0x10, buf2);
             memcpy(buf+count-count2,buf2,count%512);
-            
             khfree(buf2);
 
             
@@ -525,6 +511,9 @@ decl_read(ide_devfs_read){
 }   
 
 decl_write(ide_devfs_write){
+              if(count==0){
+                return 0;
+            }
     int inode=fd_node_find(fd)->inode;
 
 
@@ -602,17 +591,15 @@ static void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
       // (II) Send ATA Identify Command:
       ide_write(i == 0 ? ideit : ideit->second, ATA_REG_COMMAND,
                 ATA_CMD_IDENTIFY);
-      io_wait();
-      io_wait();
-      io_wait();
-      io_wait();
-          io_wait();
-      io_wait();
-      io_wait();
-      io_wait();
+
 
       // This function should be implemented in your OS. which waits for 1 ms.
       // it is based on System Timer Device Driver.
+      unsigned int waitforsel=0xfffff;
+      while(waitforsel>0) {
+          io_wait();
+          --waitforsel;
+      }
 
       // (III) Polling:
       if (ide_read(i == 0 ? ideit : ideit->second, ATA_REG_STATUS) == 0)
@@ -684,8 +671,7 @@ static void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
         (i == 0 ? ideit : ideit->second)->ide_devices[count].Model[k] =
             ide_buf[ATA_IDENT_MODEL + k + 1];
         (i == 0 ? ideit : ideit->second)->ide_devices[count].Model[k + 1] =
-            ide_buf[ATA_IDENT_MODEL + k];
-      }
+            ide_buf[ATA_IDENT_MODEL + k];      }
       (i == 0 ? ideit : ideit->second)->ide_devices[count].Model[40] =
           0; // Terminate String.
 
@@ -714,6 +700,8 @@ static void ctrl_init(unsigned int b0, unsigned int b1, unsigned int b2,
                 10);
         putstring(" devfs filename ");
         putstring(newfile->name);
+        putstring (" channel ");
+        putunum(j,16);
         putstring("\n");
         ++dev_it;
       }

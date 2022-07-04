@@ -229,34 +229,39 @@ error_0:
     pushal
     movl $0,err_code
 
-    
+        jmp .
+
     popal
     iretl
 error_2:
     pushal
     movl $2,err_code
-    
+        jmp .
+
     popal
     iretl
     
 error_3:
     pushal
     movl $3,err_code
-    
+        jmp .
+
     popal
     iretl
     
 error_4:
     pushal
     movl $4,err_code
-    
+        jmp .
+
     popal
     iretl
     
 error_5:
     pushal
     movl $5,err_code
-    
+        jmp .
+
     popal
     iretl
 
@@ -287,42 +292,77 @@ error_6:
 error_7:
     pushal
     movl $7,err_code
-    
+        jmp .
+
     popal
     iretl
     
 error_8:
+    pushl %ebx
+    movl 4(%esp),%ebx
+    movl %ebx,err_eip
+    popl %ebx
     pushal
-    movl $8,err_code
-    
+    movl current_task,%ebx
+    cmpb $0,28(%ebx)
+    jnz 1
+    movl $8,err_code  
+    pushl 36(%esp)
+    pushl 44(%esp)
+    movl %cr2,%ebp
+    pushl %ebp
+    pushl err_eip
+    pushl $error_str
+    call exception_handler
+    cli
+    hlt
+    1:
     popal
-    
     iretl
 error_10:
     pushal
     movl $10,err_code
-    
+    jmp .
+
     popal
     iretl
     
 error_11:
     pushal
     movl $11,err_code
-    
+    jmp .
+
     popal
     iretl
     
 error_12:
     pushal
     movl $12,err_code
-    
+    jmp .
+
     popal
     iretl
     
 error_13:
+    pushl %ebx
+    movl 4(%esp),%ebx
+    movl %ebx,err_eip
+    popl %ebx
     pushal
-    movl $13,err_code
-    
+    movl current_task,%ebx
+    cmpb $0,28(%ebx)
+    jnz 1
+    movl $13,err_code  
+    pushl 36(%esp)
+    pushl 44(%esp)
+    movl %cr2,%ebp
+    pushl %ebp
+    pushl err_eip
+    pushl $error_str
+    call exception_handler
+    cli
+    hlt
+    1:
     popal
     iretl
     
@@ -352,56 +392,64 @@ error_14:
 error_17:
     pushal
     movl $17,err_code
-    
+    jmp .
+
     popal
     iretl
     
 error_18:
     pushal
     movl $18,err_code
-    
+    jmp .
+
     popal
     iretl
     
 error_19:
     pushal
     movl $19,err_code
-    
+    jmp .
+
     popal
     iretl
     
 error_20:
     pushal
     movl $20,err_code
-    
+    jmp .
+
     popal
     iretl
     
 error_21:
     pushal
     movl $21,err_code
-    
+    jmp .
+
     popal
     
     iretl
 error_28:
     pushal
     movl $28,err_code
-    
+    jmp .
+
     popal
     iretl
     
 error_29:
     pushal
     movl $29,err_code
-    
+    jmp .
+
     popal
     iretl
     
 error_30:
     pushal
-    movl $30,err_code
-    
+    movl $30,err_code       
+    jmp .
+
     popal
     iretl
     
@@ -416,4 +464,5 @@ atapi_isr:
     movb $0x20,%al
     outb %al,$0xa0
     outb %al,$0x20
+
     iretl

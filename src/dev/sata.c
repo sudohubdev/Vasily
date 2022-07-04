@@ -26,7 +26,6 @@ typedef enum
 } FIS_TYPE;
 
 void sata_irq(){
-    asm("lgdt 0");
 }__attribute__((interrupt));
 
 #define	SATA_SIG_ATA	0x00000101	// SATA drive
@@ -43,7 +42,6 @@ void sata_irq(){
 #define HBA_PORT_IPM_ACTIVE 1
 #define HBA_PORT_DET_PRESENT 3
  
-void*	AHCI_BASE;	// 4M
  
 #define HBA_PxCMD_ST    0x0001
 #define HBA_PxCMD_FRE   0x0010
@@ -150,7 +148,7 @@ int sata_write(sata_device *in, uint32_t startl, uint32_t starth, uint32_t count
 	// Check again
 	if (port->is & HBA_PxIS_TFES)
 	{
-		putstring("WRITE disk error\n");
+		putstring("WRITE disk error 2\n");
 		return 0;
 	}
  
@@ -218,11 +216,12 @@ int sata_read(sata_device *in, uint32_t startl, uint32_t starth, uint32_t count,
 	// The below loop waits until the port is no longer busy before issuing a new command
 	while ((port->tfd & (ATA_DEV_BUSY | ATA_DEV_DRQ)) && spin < 0xffffff)
 	{
+
 		spin++;
 	}
 	if (spin == 0xffffff)
 	{
-		putstring("Port is hung\n");
+		putstring("Port is hung (READ)\n");
 		return 0;
 	}
  
@@ -284,12 +283,12 @@ void port_rebase(ahci_port *port, int portno)
 	// Command list entry size = 32
 	// Command list entry maxim count = 32
 	// Command list maxim size = 32*32 = 1K per port
-	port->clb = AHCI_BASE + (portno<<10);
+	port->clb = khmalloc(0x1000);
 	port->clbu = 0;
 	memset((void*)(port->clb), 0, 1024);
 	// FIS offset: 32K+256*portno
 	// FIS entry size = 256 bytes per port
-	port->fb = AHCI_BASE + (32<<10) + (portno<<8);
+	port->fb = khmalloc(0x1000);
 
 	port->fbu = 0;
 	memset((void*)(port->fb), 0, 256);
@@ -301,13 +300,12 @@ void port_rebase(ahci_port *port, int portno)
 	// Command table offset: 40K + 8K*portno
 	// Command table size = 256*32 = 8K per port
 	ahci_header *cmdheader = (ahci_header*)(port->clb);
-
 	for (int i=0; i<32; i++)
 	{
 		cmdheader[i].prdtl = 8;	// 8 prdt entries per command table
 					// 256 bytes per command table, 64+16+48+16*8
 		// Command table offset: 40K + 8K*portno + cmdheader_index*256
-		cmdheader[i].ctba = AHCI_BASE + (40<<10) + (portno<<13) + (i<<8);
+		cmdheader[i].ctba = khmalloc(0x1000);
 		cmdheader[i].ctbau = 0;
 		memset((void*)cmdheader[i].ctba, 0, 256);
 	}
@@ -387,7 +385,7 @@ decl_read(sata_devfs_read){
         if(it->devfs_inode==inode){
             unsigned int off2=off%512;
 
-            char* buf2=khmalloc(512);
+            char *buf2=khmalloc(1024);
                 
             sata_read(it,off/512,0,1,buf2);
             memcpy(in_buf,buf2+off2,512-off2);
@@ -411,7 +409,10 @@ decl_read(sata_devfs_read){
             
         it=it->next;
     }
-    putstring("i have failed\n");
+    putstring("SEPERATOR\n");
+    putunum(inode,10);
+    putstring(" ");
+    putstring(" i have failed\n");
     
     return 0;// ide_read_sectors(inode,count/512,off/512,0x10,(unsigned int)buf);
 
@@ -461,6 +462,7 @@ decl_write(sata_devfs_write){
 int controller_count=0;
 
 static void sata_ctrl_init(struct pcidev* it){
+    set_idt_entry(it->irq,sata_irq,0x8,0x8e);
     int bar5=readconfword32(it->bus,it->dev,it->func,0x24)&(~(unsigned int)0b1111);
     extern pagedir_t* krnl_pagedir;
     krnl_map_page(krnl_pagedir, bar5, 0x1600000+controller_count*0x1000);
@@ -471,9 +473,7 @@ static void sata_ctrl_init(struct pcidev* it){
     int i=0;
     sata_device* it2=satroot=khmalloc(sizeof(sata_device));
     
-    AHCI_BASE=khmalloc(0x110000);
-    AHCI_BASE=AHCI_BASE+(0x80-((unsigned int)AHCI_BASE%0x80));
-    
+
     while(i<32){
         if (pi&1){
             int dt = check_type(&reg->ports[i]);
@@ -481,10 +481,6 @@ static void sata_ctrl_init(struct pcidev* it){
                 it2->next=khmalloc(sizeof(sata_device));
                 struct vfs_node *newfile = devfs_int_creat(sata_devfs_read,sata_devfs_write); 
                // (j == 0 ? ideit : ideit->second)->ide_devices[i].devfs_inode = newfile->inode;
-                reg->ghc=(unsigned int)(1<<31);
-                reg->ghc=(unsigned int)(1<<0);
-                reg->ghc=(unsigned int)(1<<31);
-                reg->ghc=(unsigned int)(1<<1);
                 port_rebase(&reg->ports[i],i);
                 
                 
@@ -514,6 +510,8 @@ static void sata_ctrl_init(struct pcidev* it){
         pi>>=1;
         ++i;
     }
+    khfree(it2->next);
+    it2->next=0;
 
 }
 

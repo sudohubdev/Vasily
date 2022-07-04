@@ -59,13 +59,13 @@ decl_write(mbr_write){
 void init_mbr(){
     putstring("init_mbr...\n");
     struct vfs_node* it;
-  //  it=finddir(memroot,"dev");
-    extern struct vfs_node* devfs_root;
-    it=devfs_root->child;
+    it=finddir(memroot,"dev");
+    it=it->child;
     mbr=khmalloc(512);
     mbrroot=khmalloc(sizeof(struct mbr_part));
     struct mbr_part *mbrit=mbrroot;
     int counter;
+    
     while(it){
         counter=0;
         if(it->name[4]==0){
@@ -73,10 +73,10 @@ void init_mbr(){
 
             it->read(fd,mbr,512,0);
 
-            if(mbr->sig==0xaa55){
+            if(mbr->sig==0xaa55&&(mbr->bloat==0||mbr->bloat==0x5a5a)){
                 for(unsigned int i=0;i<4;++i){
 
-                    if(mbr->entry[i].parttype!=0&&mbr->entry[i].sizesect!=0){
+                    if(mbr->entry[i].parttype!=0&&mbr->entry[i].parttype>0x7f&&mbr->entry[i].sizesect!=0){
                         ++counter;
                         struct vfs_node* newfile=devfs_int_creat(mbr_read,mbr_write);
                         memcpy(newfile->name,it->name,sizeof(it->name));
