@@ -16,7 +16,7 @@ struct fat_fs_entry{
   struct vfs_node* disk;
 };
 
-struct fat_fs_entry *root, *fatiter=0;
+struct fat_fs_entry *fatroot, *fatiter=0;
 struct fat16_bpb detect;
 
 int detect_fat(int fd){
@@ -33,7 +33,8 @@ int detect_fat(int fd){
 void init_fat(){
     struct vfs_node* iter;
     struct vfs_node* root=iter=devfs_root->child;
-    root=khmalloc(sizeof(struct fat_fs_entry));
+    fatroot=khmalloc(sizeof(struct fat_fs_entry));
+    
     do{
             int fd=open(iter,0);
             if(detect_fat(fd)){
@@ -42,7 +43,7 @@ void init_fat(){
                 
                 
                 if(fatiter==0){
-                    fatiter=root;
+                    fatiter=fatroot;
                 }
                 else{
                     fatiter->next=khmalloc(sizeof(struct fat_fs_entry));
