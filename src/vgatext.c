@@ -392,16 +392,23 @@ void drawchar(unsigned char c, int x, int y, int fgcolor, int bgcolor) {
   unsigned char *glyph = &vga_font[0] + c * 16;
   if (c)
     for (cy = 0; cy < 16; cy++) {
+      unsigned char *p = globl_info.framebuffer_addr + (unsigned char*)(((y+cy) * (unsigned int)globl_info.framebuffer_width + x) * (globl_info.framebuffer_bpp / 8));
       for (cx = 0; cx < 8; cx++) {
-        putpixel(glyph[cy] & mask[7 - cx] ? fgcolor : bgcolor, x + cx, y + cy);
+          for (unsigned int i = 0; i < (globl_info.framebuffer_bpp / 8); ++i) {
+              p[i+cx*4] = (255 & ((glyph[cy] & mask[7 - cx] ? fgcolor : bgcolor) >> (i * 8)));
+          }
       }
     }
   else
     for (cy = 0; cy < 16; cy++) {
+      unsigned char *p = globl_info.framebuffer_addr + (unsigned char*)(((y+cy) * (unsigned int)globl_info.framebuffer_width + x) * (globl_info.framebuffer_bpp / 8));
       for (cx = 0; cx < 8; cx++) {
-        putpixel(bgcolor, x + cx, y + cy);
+          for (unsigned int i = 0; i < (globl_info.framebuffer_bpp / 8); ++i) {
+              p[i+cx*4] = (255 & (bgcolor >> (i * 8)));
+          }
       }
     }
+    
 }
 
 void buf_flush() {
@@ -421,7 +428,7 @@ void buf_flush() {
                 drawchar((char)0, x * 8, y * 16,textmode_lookup[buf_ptr[y * tres[0] + x]>>8], 0);
             }
             else if (x<=buf_curpos[y])
-            drawchar((char)buf_ptr[y * tres[0] + x], x * 8, y * 16,textmode_lookup[buf_ptr[y * tres[0] + x]>>8], 0);
+              drawchar((char)buf_ptr[y * tres[0] + x], x * 8, y * 16,textmode_lookup[buf_ptr[y * tres[0] + x]>>8], 0);
             
         }
     }
